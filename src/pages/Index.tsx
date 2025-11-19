@@ -1,7 +1,8 @@
-import { Train, MapPin } from "lucide-react";
+import { Train, MapPin, Search, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -37,35 +38,41 @@ const Index = () => {
           </Card>
         </div>
 
-        {/* Quick Track Section */}
+        {/* Track My Train */}
         <Card className="p-6 mb-6 bg-primary shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <svg 
-                  className="w-6 h-6 text-primary-foreground" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M13 10V3L4 14h7v7l9-11h-7z" 
-                  />
-                </svg>
-                <h2 className="text-2xl font-bold text-primary-foreground">Track My Train</h2>
-              </div>
-              <p className="text-primary-foreground/90">Scan QR code for real-time tracking</p>
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-14 h-14 bg-accent rounded-2xl flex items-center justify-center">
+              <Zap className="w-7 h-7 text-accent-foreground" />
             </div>
-            <Button 
-              onClick={() => navigate('/qr-scanner')}
-              className="bg-accent hover:bg-orange-hover text-accent-foreground font-semibold px-6 py-6 text-lg"
-            >
-              Track Now
-            </Button>
+            <div>
+              <h2 className="text-2xl font-bold text-primary-foreground mb-1">Track My Train</h2>
+              <p className="text-primary-foreground/70">Enter train number for real-time tracking</p>
+            </div>
           </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const trainNumber = formData.get("trainNumber") as string;
+              if (trainNumber.trim()) {
+                navigate(`/train-details?train=${encodeURIComponent(trainNumber.trim())}`);
+              }
+            }}
+            className="flex gap-2"
+          >
+            <Input
+              name="trainNumber"
+              placeholder="Enter Train Number (e.g., 12951)"
+              className="flex-1 h-12 bg-white/10 border-white/20 text-primary-foreground placeholder:text-primary-foreground/50"
+              required
+            />
+            <Button
+              type="submit"
+              className="bg-accent hover:bg-orange-hover text-accent-foreground px-6 h-12"
+            >
+              <Search className="w-5 h-5" />
+            </Button>
+          </form>
         </Card>
 
         {/* Real-Time Tracking Info */}
