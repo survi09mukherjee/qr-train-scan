@@ -1,48 +1,82 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, MapPin, Clock, Train, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, Train, CheckCircle2, AlertCircle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+interface Station {
+  name: string;
+  arrivalTime: string;
+  departureTime: string;
+  platform: string;
+  distance: number;
+  isPassed: boolean;
+  isCurrent: boolean;
+}
+
 interface TrainData {
   trainNumber: string;
   trainName: string;
-  currentLocation: string;
-  nextStation: string;
+  currentStation: string;
+  source: string;
+  destination: string;
   status: "on-time" | "delayed" | "running";
-  delay?: number;
-  platform?: string;
-  speed?: number;
-  eta?: string;
+  currentDateTime: string;
   latitude: number;
   longitude: number;
+  speed: number;
+  progress: number;
+  stations: Station[];
+  previousStations: Station[];
+  upcomingStations: Station[];
 }
 
 const TrainDetails = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const qrCode = searchParams.get("code");
+  const trainNumber = searchParams.get("train") || searchParams.get("code");
   const [trainData, setTrainData] = useState<TrainData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching train data based on QR code
+    // Simulate fetching train data based on train number
     const fetchTrainData = () => {
       setTimeout(() => {
         // Mock data - in real app, this would come from an API
+        const mockStations: Station[] = [
+          { name: "Mumbai Central", arrivalTime: "16:55", departureTime: "16:55", platform: "1", distance: 0, isPassed: true, isCurrent: false },
+          { name: "Surat", arrivalTime: "21:10", departureTime: "21:15", platform: "2", distance: 264, isPassed: true, isCurrent: false },
+          { name: "Vadodara Junction", arrivalTime: "22:45", departureTime: "22:50", platform: "3", distance: 390, isPassed: true, isCurrent: false },
+          { name: "Ratlam Junction", arrivalTime: "02:15", departureTime: "02:20", platform: "4", distance: 615, isPassed: false, isCurrent: true },
+          { name: "Kota Junction", arrivalTime: "06:30", departureTime: "06:35", platform: "5", distance: 865, isPassed: false, isCurrent: false },
+          { name: "Sawai Madhopur", arrivalTime: "08:15", departureTime: "08:17", platform: "2", distance: 990, isPassed: false, isCurrent: false },
+          { name: "New Delhi", arrivalTime: "11:30", departureTime: "11:30", platform: "16", distance: 1384, isPassed: false, isCurrent: false },
+        ];
+
+        const currentIndex = mockStations.findIndex(s => s.isCurrent);
+        
         const mockData: TrainData = {
-          trainNumber: "12951",
-          trainName: "Mumbai Rajdhani",
-          currentLocation: "Approaching Vadodara Junction",
-          nextStation: "Vadodara Junction",
+          trainNumber: trainNumber || "12951",
+          trainName: "Mumbai Rajdhani Express",
+          currentStation: mockStations[currentIndex].name,
+          source: mockStations[0].name,
+          destination: mockStations[mockStations.length - 1].name,
           status: "running",
-          platform: "3",
-          speed: 110,
-          eta: "14:30",
-          latitude: 22.3072,
-          longitude: 73.1812,
+          currentDateTime: new Date().toLocaleString('en-IN', { 
+            timeZone: 'Asia/Kolkata',
+            dateStyle: 'medium',
+            timeStyle: 'short'
+          }),
+          latitude: 23.3315,
+          longitude: 75.0367,
+          speed: 105,
+          progress: ((currentIndex + 0.5) / (mockStations.length - 1)) * 100,
+          stations: mockStations,
+          previousStations: mockStations.slice(Math.max(0, currentIndex - 3), currentIndex),
+          upcomingStations: mockStations.slice(currentIndex + 1, Math.min(mockStations.length, currentIndex + 4)),
         };
+        
         setTrainData(mockData);
         setLoading(false);
       }, 1500);
@@ -57,12 +91,17 @@ const TrainDetails = () => {
         return {
           ...prev,
           speed: Math.floor(Math.random() * 30) + 90,
+          currentDateTime: new Date().toLocaleString('en-IN', { 
+            timeZone: 'Asia/Kolkata',
+            dateStyle: 'medium',
+            timeStyle: 'short'
+          }),
         };
       });
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [qrCode]);
+  }, [trainNumber]);
 
   if (loading) {
     return (
@@ -102,8 +141,8 @@ const TrainDetails = () => {
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Train Details</h1>
-            <p className="text-muted-foreground">Live tracking information</p>
+            <h1 className="text-3xl font-bold text-foreground">Train Tracking</h1>
+            <p className="text-muted-foreground">Live location & journey details</p>
           </div>
         </div>
 
@@ -127,71 +166,151 @@ const TrainDetails = () => {
             </Badge>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mt-6">
-            <div className="bg-primary-foreground/10 rounded-xl p-4">
-              <p className="text-primary-foreground/70 text-sm mb-1">Platform</p>
-              <p className="text-2xl font-bold text-primary-foreground">{trainData.platform}</p>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="bg-primary-foreground/10 rounded-xl p-4">
               <p className="text-primary-foreground/70 text-sm mb-1">Current Speed</p>
               <p className="text-2xl font-bold text-primary-foreground">{trainData.speed} km/h</p>
             </div>
+            <div className="bg-primary-foreground/10 rounded-xl p-4">
+              <p className="text-primary-foreground/70 text-sm mb-1">Current Station</p>
+              <p className="text-lg font-bold text-primary-foreground truncate">{trainData.currentStation}</p>
+            </div>
           </div>
         </Card>
 
-        {/* Location Card */}
+        {/* Journey Progress */}
         <Card className="p-6 mb-6 bg-card">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
-              <MapPin className="w-6 h-6 text-accent-foreground" />
+          <h3 className="text-xl font-semibold text-card-foreground mb-4">Journey Progress</h3>
+          
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-foreground">{trainData.source}</span>
+              <span className="text-sm font-medium text-foreground">{trainData.destination}</span>
             </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-semibold text-card-foreground mb-2">
-                Current Location
-              </h3>
-              <p className="text-lg text-muted-foreground mb-4">{trainData.currentLocation}</p>
-              
-              <div className="bg-muted rounded-xl p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Next Station</span>
-                  <span className="text-sm font-medium text-foreground">{trainData.nextStation}</span>
+            <div className="relative h-3 w-full overflow-hidden rounded-full bg-navy/20">
+              <div 
+                className="h-full transition-all rounded-full"
+                style={{
+                  width: `${trainData.progress}%`,
+                  background: `linear-gradient(90deg, hsl(var(--navy)) 0%, hsl(var(--orange)) 100%)`
+                }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              {Math.round(trainData.progress)}% Complete
+            </p>
+          </div>
+
+          {/* Previous Stations */}
+          {trainData.previousStations.length > 0 && (
+            <div className="mb-6">
+              <h4 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-navy"></div>
+                Previous Stations
+              </h4>
+              <div className="space-y-2">
+                {trainData.previousStations.map((station, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 bg-navy/10 rounded-lg">
+                    <div>
+                      <p className="font-medium text-foreground">{station.name}</p>
+                      <p className="text-xs text-muted-foreground">Platform {station.platform}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-foreground">{station.departureTime}</p>
+                      <p className="text-xs text-muted-foreground">{station.distance} km</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Current Station */}
+          <div className="mb-6">
+            <h4 className="text-sm font-semibold text-orange mb-3 flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-orange animate-pulse"></div>
+              Current Location
+            </h4>
+            <div className="p-4 bg-orange/20 border-2 border-orange rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-lg text-foreground">{trainData.currentStation}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Platform {trainData.stations.find(s => s.isCurrent)?.platform}
+                  </p>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">ETA</span>
-                  <span className="text-sm font-medium text-foreground">{trainData.eta}</span>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-foreground">
+                    {trainData.stations.find(s => s.isCurrent)?.arrivalTime}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {trainData.stations.find(s => s.isCurrent)?.distance} km
+                  </p>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Upcoming Stations */}
+          {trainData.upcomingStations.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
+                Upcoming Stations
+              </h4>
+              <div className="space-y-2">
+                {trainData.upcomingStations.map((station, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div>
+                      <p className="font-medium text-foreground">{station.name}</p>
+                      <p className="text-xs text-muted-foreground">Platform {station.platform}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-foreground">{station.arrivalTime}</p>
+                      <p className="text-xs text-muted-foreground">{station.distance} km</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </Card>
 
-        {/* Map Placeholder */}
-        <Card className="p-6 bg-card">
+        {/* Location Details */}
+        <Card className="p-6 mb-6 bg-card">
           <h3 className="text-xl font-semibold text-card-foreground mb-4 flex items-center gap-2">
             <MapPin className="w-5 h-5 text-accent" />
-            Live Location Map
+            GPS Location
           </h3>
-          <div className="w-full h-64 bg-muted rounded-xl flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="w-12 h-12 text-accent mx-auto mb-2 animate-pulse" />
-              <p className="text-muted-foreground">
-                Lat: {trainData.latitude.toFixed(4)}, Long: {trainData.longitude.toFixed(4)}
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Live tracking active
-              </p>
+          
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="bg-muted rounded-lg p-4">
+              <p className="text-xs text-muted-foreground mb-1">Latitude</p>
+              <p className="text-lg font-bold text-foreground">{trainData.latitude.toFixed(4)}°</p>
             </div>
+            <div className="bg-muted rounded-lg p-4">
+              <p className="text-xs text-muted-foreground mb-1">Longitude</p>
+              <p className="text-lg font-bold text-foreground">{trainData.longitude.toFixed(4)}°</p>
+            </div>
+          </div>
+
+          <div className="bg-muted rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="w-4 h-4 text-accent" />
+              <p className="text-xs text-muted-foreground">Current Date & Time</p>
+            </div>
+            <p className="text-base font-semibold text-foreground">{trainData.currentDateTime}</p>
           </div>
         </Card>
 
-        {/* Additional Info */}
-        <Card className="mt-6 p-6 bg-secondary">
+        {/* Live Updates Info */}
+        <Card className="p-6 bg-secondary">
           <div className="flex items-start gap-3">
             <Clock className="w-5 h-5 text-accent mt-1" />
             <div>
               <h4 className="font-semibold text-foreground mb-1">Real-Time Updates</h4>
               <p className="text-sm text-muted-foreground">
-                Location updates every 10 seconds. Data refreshes automatically.
+                Location and speed update every 10 seconds. All times shown in Indian Standard Time (IST).
               </p>
             </div>
           </div>
