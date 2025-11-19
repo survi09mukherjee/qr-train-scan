@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import QRScanner from "./pages/QRScanner";
 import TrainDetails from "./pages/TrainDetails";
 import PNRStatus from "./pages/PNRStatus";
+import StationControl from "./pages/StationControl";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/qr-scanner" element={<QRScanner />} />
           <Route path="/train-details" element={<TrainDetails />} />
           <Route path="/pnr-status" element={<PNRStatus />} />
+          <Route path="/station-control" element={<StationControl />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -75,33 +75,51 @@ const Index = () => {
           </form>
         </Card>
 
-        {/* Real-Time Tracking Info */}
-        <Card className="p-6 bg-card">
-          <div className="flex gap-4">
-            <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
-              <svg 
-                className="w-6 h-6 text-accent-foreground" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" 
-                />
-              </svg>
+        {/* Additional Options */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Station Control Card */}
+          <Card 
+            className="p-6 bg-card hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => navigate('/station-control')}
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-navy rounded-2xl flex items-center justify-center">
+                <Train className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-card-foreground mb-1">Station Control</h3>
+                <p className="text-muted-foreground text-sm">Cabin view monitoring system</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-xl font-semibold text-card-foreground mb-2">Real-Time Tracking</h3>
-              <p className="text-muted-foreground">
-                Get live updates on train location, delays, platform changes, and arrival times. 
-                Never miss your train again.
-              </p>
+          </Card>
+
+          {/* Real-Time Tracking Info */}
+          <Card className="p-6 bg-card">
+            <div className="flex gap-4">
+              <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
+                <svg 
+                  className="w-6 h-6 text-accent-foreground" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" 
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-card-foreground mb-2">Real-Time Tracking</h3>
+                <p className="text-muted-foreground">
+                  Get live updates on train location and arrival times.
+                </p>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       </div>
     </div>
   );
