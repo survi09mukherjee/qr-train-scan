@@ -13,6 +13,7 @@ import QRScanner from "./pages/QRScanner";
 import ScanHistory from "./pages/history/ScanHistory";
 import UserList from "./pages/admin/UserList";
 import Support from "./pages/Support";
+import TrainLivePage from "./pages/train/TrainLivePage";
 
 // Placeholder for protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -105,6 +106,14 @@ const AppRoutes = () => {
                 element={
                     <ProtectedRoute>
                         <Support />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/train/:trainId"
+                element={
+                    <ProtectedRoute>
+                        <TrainLivePage />
                     </ProtectedRoute>
                 }
             />
