@@ -4,14 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import NetworkStatus from "@/components/NetworkStatus";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./AppRoutes";
-import Index from "./pages/Index";
-import QRScanner from "./pages/QRScanner";
-import TrainDetails from "./pages/TrainDetails";
-import PNRStatus from "./pages/PNRStatus";
-import StationControl from "./pages/StationControl";
-import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 

@@ -8,7 +8,6 @@ import Loader from "@/components/common/Loader";
 import ErrorState from "@/components/common/ErrorState";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 const TrainLivePage = () => {
     const { trainId } = useParams<{ trainId: string }>();
