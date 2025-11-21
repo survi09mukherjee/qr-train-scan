@@ -1,27 +1,39 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Html5Qrcode } from "html5-qrcode";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle, XCircle, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 const QRScanner = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isScanning, setIsScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<{ status: 'success' | 'error' | null, message?: string }>({ status: null });
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const readerIdRef = useRef("qr-reader");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    startScanner();
+    // Auto-start scanner on mount
+    const timer = setTimeout(() => {
+      startScanner();
+    }, 500);
     return () => {
+      clearTimeout(timer);
       stopScanner();
     };
   }, []);
 
   const startScanner = async () => {
     try {
+      if (scannerRef.current) {
+        // Already running or initialized
+        return;
+      }
       const html5QrCode = new Html5Qrcode(readerIdRef.current);
       scannerRef.current = html5QrCode;
 
@@ -43,7 +55,7 @@ const QRScanner = () => {
       console.error("Error starting scanner:", err);
       toast({
         title: "Camera Error",
-        description: "Unable to access camera. Please check permissions.",
+        description: "Unable to access camera. Please check permissions or use file upload.",
         variant: "destructive",
       });
     }
@@ -54,6 +66,8 @@ const QRScanner = () => {
       try {
         await scannerRef.current.stop();
         scannerRef.current.clear();
+        scannerRef.current = null;
+        setIsScanning(false);
       } catch (err) {
         console.error("Error stopping scanner:", err);
       }
@@ -61,74 +75,134 @@ const QRScanner = () => {
   };
 
   const handleScanSuccess = async (decodedText: string) => {
-    console.log("QR Code scanned:", decodedText);
     await stopScanner();
-    
-    toast({
-      title: "QR Code Scanned!",
-      description: "Loading train details...",
-    });
 
-    // Navigate to train details with the scanned data
-    navigate(`/train-details?code=${encodeURIComponent(decodedText)}`);
+    // Simulate backend verification
+    setTimeout(() => {
+      if (decodedText.includes("invalid")) {
+        setScanResult({ status: 'error', message: "Invalid QR Code. Please try again." });
+      } else {
+        setScanResult({ status: 'success', message: `Successfully scanned: ${decodedText}` });
+      }
+    }, 500);
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const html5QrCode = new Html5Qrcode(readerIdRef.current);
+    try {
+      const decodedText = await html5QrCode.scanFile(file, true);
+      handleScanSuccess(decodedText);
+    } catch (err) {
+      console.error("Error scanning file:", err);
+      setScanResult({ status: 'error', message: "Could not read QR code from image." });
+    }
+  };
+
+  const resetScan = () => {
+    setScanResult({ status: null });
+    startScanner();
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
-      <div className="container max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="container max-w-md mx-auto px-4 py-6 flex-1 flex flex-col">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-6">
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/dashboard")}
             className="rounded-full"
           >
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Scan QR Code</h1>
-            <p className="text-muted-foreground">Point camera at train QR code</p>
+            <h1 className="text-2xl font-bold">Scan QR</h1>
+            <p className="text-muted-foreground text-sm">Check-in or verify session</p>
           </div>
         </div>
 
-        {/* Scanner Card */}
-        <Card className="p-8 bg-card">
-          <div className="flex flex-col items-center">
-            <div id="qr-reader" className="w-full max-w-md rounded-xl overflow-hidden shadow-lg"></div>
-            
-            <div className="mt-6 text-center">
-              <p className="text-muted-foreground mb-2">
-                Position the QR code within the frame
-              </p>
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-                <p className="text-sm font-medium text-foreground">Scanning...</p>
-              </div>
+        {/* Scanner Area */}
+        <Card className="flex-1 overflow-hidden relative bg-black rounded-3xl border-0 shadow-2xl">
+          <div id="qr-reader" className="w-full h-full bg-black"></div>
+
+          {/* Overlay UI */}
+          <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
+            <div className="w-64 h-64 border-2 border-white/50 rounded-3xl relative">
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-xl"></div>
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-xl"></div>
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary rounded-bl-xl"></div>
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary rounded-br-xl"></div>
             </div>
+            <p className="mt-8 text-white/80 font-medium bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm">
+              Align QR code within frame
+            </p>
           </div>
         </Card>
 
-        {/* Instructions */}
-        <Card className="mt-6 p-6 bg-primary">
-          <h3 className="text-lg font-semibold text-primary-foreground mb-3">
-            How to scan:
-          </h3>
-          <ul className="space-y-2 text-primary-foreground/90">
-            <li className="flex items-start gap-2">
-              <span className="text-accent font-bold">1.</span>
-              <span>Find the QR code displayed on your train</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-accent font-bold">2.</span>
-              <span>Hold your phone steady and center the QR code</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-accent font-bold">3.</span>
-              <span>Wait for automatic detection and scanning</span>
-            </li>
-          </ul>
-        </Card>
+        {/* Controls */}
+        <div className="mt-6 grid grid-cols-2 gap-4">
+          <Button
+            variant="outline"
+            className="h-14 flex flex-col gap-1"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Upload className="h-5 w-5" />
+            <span className="text-xs">Upload Image</span>
+          </Button>
+          <Input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+          />
+
+          <Button
+            variant="outline"
+            className="h-14 flex flex-col gap-1"
+            onClick={() => {
+              stopScanner().then(() => startScanner());
+            }}
+          >
+            <Camera className="h-5 w-5" />
+            <span className="text-xs">Switch Camera</span>
+          </Button>
+        </div>
+
+        {/* Result Dialog */}
+        <Dialog open={!!scanResult.status} onOpenChange={(open) => !open && resetScan()}>
+          <DialogContent className="sm:max-w-md text-center">
+            <DialogHeader>
+              <div className="mx-auto mb-4">
+                {scanResult.status === 'success' ? (
+                  <CheckCircle className="h-16 w-16 text-green-500" />
+                ) : (
+                  <XCircle className="h-16 w-16 text-red-500" />
+                )}
+              </div>
+              <DialogTitle className="text-center text-xl">
+                {scanResult.status === 'success' ? 'Scan Successful' : 'Scan Failed'}
+              </DialogTitle>
+              <DialogDescription className="text-center">
+                {scanResult.message}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="sm:justify-center">
+              <Button onClick={resetScan} className="w-full sm:w-auto">
+                {scanResult.status === 'success' ? 'Scan Another' : 'Try Again'}
+              </Button>
+              {scanResult.status === 'success' && (
+                <Button variant="secondary" onClick={() => navigate('/dashboard')} className="w-full sm:w-auto">
+                  Done
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
