@@ -39,94 +39,56 @@ export interface TrainData {
 }
 
 export const fetchLiveTrainData = async (trainId: string): Promise<TrainData> => {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    const now = new Date();
-    const randomOffset = () => (Math.random() - 0.5) * 0.001;
-
-    // Mock data database
-    const trains: Record<string, any> = {
-        "12345": {
-            trainName: "Howrah Superfast Express",
-            trainNumber: "12841",
-            pnr: "6319248756",
-            baseLat: 22.5726,
-            baseLng: 88.3639,
-            nearestStation: "Howrah Junction",
-            etaFinalDestination: "02:17:00",
-            source: "Chennai Central",
-            destination: "Howrah Junction",
-            finalStop: "Howrah Junction",
-            previousStation: { name: "Kharagpur Jn", departureTime: "12:45 PM" },
-            upcomingStation: { name: "Santragachi Jn", distance: "15 km", eta: "01:55 PM" },
-            currentLocation: { name: "Near Uluberia", lat: 22.47, lng: 88.10 },
-            weather: { temp: 29, humidity: 72, windSpeed: 15, condition: "Partly Cloudy" },
-            timezone: "IST (UTC+05:30)",
-            nextMajorStops: ["Santragachi Jn", "Howrah Junction"]
-        },
-        "67890": {
-            trainName: "Rajdhani Express",
-            trainNumber: "12951",
-            pnr: "8234567890",
-            baseLat: 19.0760,
-            baseLng: 72.8777,
-            nearestStation: "Mumbai Central",
-            etaFinalDestination: "08:30:00",
-            source: "New Delhi",
-            destination: "Mumbai Central",
-            finalStop: "Mumbai Central",
-            previousStation: { name: "Borivali", departureTime: "07:55 AM" },
-            upcomingStation: { name: "Mumbai Central", distance: "5 km", eta: "08:30 AM" },
-            currentLocation: { name: "Approaching Dadar", lat: 19.02, lng: 72.84 },
-            weather: { temp: 26, humidity: 65, windSpeed: 10, condition: "Sunny" },
-            timezone: "IST (UTC+05:30)",
-            nextMajorStops: ["Mumbai Central"]
-        },
-        "11223": {
-            trainName: "Vande Bharat Express",
-            trainNumber: "20608",
-            pnr: "4567890123",
-            baseLat: 13.0827,
-            baseLng: 80.2707,
-            nearestStation: "Chennai Central",
-            etaFinalDestination: "19:15:00",
-            source: "Mysuru Jn",
-            destination: "Chennai Central",
-            finalStop: "Chennai Central",
-            previousStation: { name: "Katpadi Jn", departureTime: "05:45 PM" },
-            upcomingStation: { name: "Perambur", distance: "8 km", eta: "07:05 PM" },
-            currentLocation: { name: "Avadi", lat: 13.11, lng: 80.10 },
-            weather: { temp: 30, humidity: 60, windSpeed: 18, condition: "Cloudy" },
-            timezone: "IST (UTC+05:30)",
-            nextMajorStops: ["Chennai Central"]
+    try {
+        const response = await fetch(`/api/trains/${trainId}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
-    };
+        const data = await response.json();
 
-    const train = trains[trainId] || trains["12345"]; // Fallback to default if ID not found
-
-    return {
-        trainName: train.trainName,
-        trainNumber: train.trainNumber,
-        pnr: train.pnr,
-        lat: train.baseLat + randomOffset(),
-        lng: train.baseLng + randomOffset(),
-        nearestStation: train.nearestStation,
-        etaFinalDestination: train.etaFinalDestination,
-        speed: 65 + Math.floor(Math.random() * 50),
-        timestamp: now.toISOString(),
-        source: train.source,
-        destination: train.destination,
-        finalStop: train.finalStop,
-        previousStation: train.previousStation,
-        upcomingStation: train.upcomingStation,
-        currentLocation: {
-            ...train.currentLocation,
-            lat: train.baseLat + randomOffset(),
-            lng: train.baseLng + randomOffset()
-        },
-        weather: train.weather,
-        timezone: train.timezone,
-        nextMajorStops: train.nextMajorStops
-    };
+        // Ensure we return the expected structure
+        return {
+            trainName: data.trainName || "Unknown Train",
+            trainNumber: data.trainNumber || trainId,
+            pnr: data.pnr || "N/A",
+            lat: data.lat || 11.0168,
+            lng: data.lng || 76.9558,
+            nearestStation: data.nearestStation || "Coimbatore Jn",
+            etaFinalDestination: data.etaFinalDestination || "Unknown",
+            speed: data.speed || 0,
+            timestamp: data.timestamp || new Date().toISOString(),
+            source: data.source || "Unknown",
+            destination: data.destination || "Unknown",
+            finalStop: data.destination || "Unknown",
+            previousStation: data.previousStation || { name: "Unknown", departureTime: "N/A" },
+            upcomingStation: data.upcomingStation || { name: "Unknown", distance: "0 km", eta: "N/A" },
+            currentLocation: data.currentLocation || { name: "Unknown", lat: 11.0168, lng: 76.9558 },
+            weather: data.weather || { temp: 28, humidity: 60, windSpeed: 10, condition: "Sunny" },
+            timezone: data.timezone || "IST (UTC+05:30)",
+            nextMajorStops: data.nextMajorStops || []
+        };
+    } catch (error) {
+        console.error("Error fetching train data:", error);
+        // Fallback to mock data if API fails (for robustness during dev)
+        return {
+            trainName: "Connection Error",
+            trainNumber: trainId,
+            pnr: "N/A",
+            lat: 11.0168,
+            lng: 76.9558,
+            nearestStation: "Coimbatore Jn",
+            etaFinalDestination: "N/A",
+            speed: 0,
+            timestamp: new Date().toISOString(),
+            source: "N/A",
+            destination: "N/A",
+            finalStop: "N/A",
+            previousStation: { name: "N/A", departureTime: "N/A" },
+            upcomingStation: { name: "N/A", distance: "N/A", eta: "N/A" },
+            currentLocation: { name: "N/A", lat: 11.0168, lng: 76.9558 },
+            weather: { temp: 0, humidity: 0, windSpeed: 0, condition: "Sunny" },
+            timezone: "IST",
+            nextMajorStops: []
+        };
+    }
 };
