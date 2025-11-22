@@ -155,7 +155,7 @@ const QRScanner = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/")}
             className="rounded-full"
           >
             <ArrowLeft className="w-6 h-6" />

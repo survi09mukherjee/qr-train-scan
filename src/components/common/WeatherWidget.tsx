@@ -1,59 +1,45 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { CloudSun, Wind, Droplets, Clock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CloudSun, Wind, Droplets } from "lucide-react";
 
 interface WeatherWidgetProps {
     lat: number;
     lng: number;
+    weather: {
+        temp: number;
+        humidity: number;
+        windSpeed: number;
+        condition: "Sunny" | "Cloudy" | "Rainy" | "Partly Cloudy";
+    };
 }
 
-const WeatherWidget = ({ lat, lng }: WeatherWidgetProps) => {
-    const [time, setTime] = useState(new Date());
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setTime(new Date());
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
-
-    // Mock weather data based on lat/lng (in a real app, fetch from API)
-    const temp = 28;
-    const condition = "Partly Cloudy";
-    const humidity = 65;
-    const windSpeed = 12;
+const WeatherWidget = ({ lat, lng, weather }: WeatherWidgetProps) => {
+    const { temp, humidity, windSpeed, condition } = weather;
 
     return (
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800">
-            <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        <span className="font-mono text-lg font-medium">
-                            {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                        {time.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })}
-                    </div>
-                </div>
-
+        <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-xl border-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 h-full">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <CloudSun className="w-4 h-4 text-orange-500" />
+                    Weather Conditions
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 pt-2">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <CloudSun className="h-12 w-12 text-orange-500" />
                         <div>
-                            <div className="text-3xl font-bold">{temp}°C</div>
-                            <div className="text-muted-foreground">{condition}</div>
+                            <div className="text-3xl font-bold text-slate-900 dark:text-white">{temp}°C</div>
+                            <div className="text-muted-foreground font-medium">{condition}</div>
                         </div>
                     </div>
 
-                    <div className="space-y-2 text-sm text-muted-foreground">
+                    <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
                         <div className="flex items-center gap-2">
-                            <Droplets className="h-4 w-4" />
+                            <Droplets className="h-4 w-4 text-blue-500" />
                             <span>{humidity}% Humidity</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Wind className="h-4 w-4" />
+                            <Wind className="h-4 w-4 text-slate-500" />
                             <span>{windSpeed} km/h Wind</span>
                         </div>
                     </div>

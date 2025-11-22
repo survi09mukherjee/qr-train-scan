@@ -7,12 +7,9 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import SessionList from "./pages/sessions/SessionList";
 import CreateSession from "./pages/sessions/CreateSession";
 import SessionDetails from "./pages/sessions/SessionDetails";
-import Profile from "./pages/profile/Profile";
 import NotFound from "./pages/NotFound";
 import QRScanner from "./pages/QRScanner";
 import ScanHistory from "./pages/history/ScanHistory";
-import UserList from "./pages/admin/UserList";
-import Support from "./pages/Support";
 import TrainLivePage from "./pages/train/TrainLivePage";
 import Index from "./pages/Index";
 import PNRStatus from "./pages/PNRStatus";
@@ -71,23 +68,6 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
-            <Route
-                path="/profile"
-                element={
-                    <ProtectedRoute>
-                        <Profile />
-                    </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/scan"
-                element={
-                    <ProtectedRoute>
-                        <QRScanner />
-                    </ProtectedRoute>
-                }
-            />
-
             {/* Logs/History Route */}
             <Route
                 path="/logs"
@@ -98,28 +78,12 @@ const AppRoutes = () => {
                 }
             />
             <Route
-                path="/users"
-                element={
-                    <ProtectedRoute>
-                        <UserList />
-                    </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/support"
-                element={
-                    <ProtectedRoute>
-                        <Support />
-                    </ProtectedRoute>
-                }
+                path="/scan"
+                element={<QRScanner />}
             />
             <Route
                 path="/train/:trainId"
-                element={
-                    <ProtectedRoute>
-                        <TrainLivePage />
-                    </ProtectedRoute>
-                }
+                element={<TrainLivePage />}
             />
             <Route
                 path="/pnr-status"

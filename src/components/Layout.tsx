@@ -35,16 +35,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <SidebarItem icon={LayoutDashboard} label="Dashboard" to="/dashboard" />
           <SidebarItem icon={QrCode} label="Scan QR" to="/scan" />
           <SidebarItem icon={Users} label="Sessions" to="/sessions" />
-          <SidebarItem icon={User} label="Users" to="/users" />
-          <SidebarItem icon={User} label="Profile" to="/profile" />
-          <SidebarItem icon={User} label="Support" to="/support" />
         </nav>
-        <div className="p-4 border-t">
-          <button className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 rounded-lg w-full transition-colors">
-            <LogOut className="h-5 w-5" />
-            Logout
-          </button>
-        </div>
       </aside>
 
       {/* Main Content */}
