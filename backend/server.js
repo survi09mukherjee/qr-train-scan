@@ -2,10 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
+const startCronJobs = require('./cron/scheduler');
 
 // Import Routes
 const trainRoutes = require('./routes/trainRoutes');
 const stationRoutes = require('./routes/stationRoutes');
+const scanRoutes = require('./routes/scanRoutes');
 
 // Initialize App
 const app = express();
@@ -14,6 +16,9 @@ const PORT = process.env.PORT || 5000;
 // Connect to Database
 connectDB();
 
+// Start Cron Jobs
+startCronJobs();
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -21,6 +26,7 @@ app.use(express.json());
 // Routes
 app.use('/api/trains', trainRoutes);
 app.use('/api/stations', stationRoutes);
+app.use('/api/scan', scanRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
