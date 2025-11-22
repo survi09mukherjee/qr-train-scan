@@ -47,11 +47,15 @@ const QRScanner: React.FC = () => {
 
         if (response.data.success) {
           const trainNumber = response.data.data.trainNumber;
-          navigate(`/train/${trainNumber}`);
+          navigate(`/train/${trainNumber}/live`);
         }
       } catch (err: any) {
         console.error('Scan Error:', err);
-        setError(err.response?.data?.error || 'Failed to process QR code');
+        if (!err.response) {
+          setError('Server Unreachable. Please ensure the backend is running.');
+        } else {
+          setError(err.response?.data?.error || 'Failed to process QR code');
+        }
         setLoading(false);
       }
     }

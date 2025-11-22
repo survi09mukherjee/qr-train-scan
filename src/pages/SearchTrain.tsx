@@ -20,12 +20,16 @@ const SearchTrain: React.FC = () => {
             // Verify train exists before navigating
             const response = await api.get(`/trains/${trainNumber}`);
             if (response.data.success) {
-                navigate(`/train/${trainNumber}`);
+                navigate(`/train/${trainNumber}/live`);
             } else {
                 setError('Train not found');
             }
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to find train');
+            if (!err.response) {
+                setError('Server Unreachable. Please ensure the backend is running.');
+            } else {
+                setError(err.response?.data?.error || 'Failed to find train');
+            }
         } finally {
             setLoading(false);
         }

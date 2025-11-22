@@ -1,8 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./config/db');
-const startCronJobs = require('./cron/scheduler');
+const { loadData } = require('./dataLoader');
 
 // Import Routes
 const trainRoutes = require('./routes/trainRoutes');
@@ -13,11 +12,9 @@ const scanRoutes = require('./routes/scanRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to Database
-connectDB();
-
-// Start Cron Jobs
-startCronJobs();
+// Load data from JSON files
+console.log('Loading data from JSON files...');
+loadData();
 
 // Middleware
 app.use(cors());

@@ -1,29 +1,23 @@
-const Train = require('../models/Train');
+const { getAllTrains, getTrainByNumber, searchTrains } = require('../dataLoader');
 const { getLiveStatus } = require('../services/liveStatusService');
 
 // @desc    Get all trains (with pagination)
 // @route   GET /api/trains
 // @access  Public
-const getAllTrains = async (req, res) => {
+const getAllTrainsHandler = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
-        const skip = (page - 1) * limit;
 
-        const trains = await Train.find()
-            .select('trainNumber trainName type source destination runningDays')
-            .skip(skip)
-            .limit(limit);
-
-        const total = await Train.countDocuments();
+        const result = getAllTrains(page, limit);
 
         res.json({
             success: true,
-            count: trains.length,
-            total,
-            page,
-            pages: Math.ceil(total / limit),
-            data: trains
+            count: result.trains.length,
+            total: result.total,
+            page: result.page,
+            pages: result.pages,
+            data: result.trains
         });
     } catch (error) {
         console.error('Error fetching trains:', error);
@@ -36,7 +30,7 @@ const getAllTrains = async (req, res) => {
 // @access  Public
 const getTrain = async (req, res) => {
     try {
-        const train = await Train.findOne({ trainNumber: req.params.trainNumber });
+        const train = getTrainByNumber(req.params.trainNumber);
 
         if (!train) {
             return res.status(404).json({ success: false, error: 'Train not found' });
@@ -50,10 +44,16 @@ const getTrain = async (req, res) => {
             liveStatus = { status: "Unknown", error: "Could not fetch live status" };
         }
 
+        console.log(`[DEBUG] Sending train data for ${req.params.trainNumber}:`, {
+            hasRoute: !!train.route,
+            routeLength: train.route ? train.route.length : 0,
+            trainName: train.trainName
+        });
+
         res.json({
             success: true,
             data: {
-                ...train.toObject(),
+                ...train,
                 live_status: liveStatus
             }
         });
@@ -66,7 +66,7 @@ const getTrain = async (req, res) => {
 // @desc    Search trains by name or number
 // @route   GET /api/trains/search
 // @access  Public
-const searchTrains = async (req, res) => {
+const searchTrainsHandler = async (req, res) => {
     try {
         const { query } = req.query;
 
@@ -74,12 +74,7 @@ const searchTrains = async (req, res) => {
             return res.status(400).json({ success: false, error: 'Please provide a search query' });
         }
 
-        const trains = await Train.find({
-            $or: [
-                { trainNumber: { $regex: query, $options: 'i' } },
-                { trainName: { $regex: query, $options: 'i' } }
-            ]
-        }).select('trainNumber trainName source destination');
+        const trains = searchTrains(query);
 
         res.json({
             success: true,
@@ -93,7 +88,7 @@ const searchTrains = async (req, res) => {
 };
 
 module.exports = {
-    getAllTrains,
+    getAllTrains: getAllTrainsHandler,
     getTrain,
-    searchTrains
+    searchTrains: searchTrainsHandler
 };

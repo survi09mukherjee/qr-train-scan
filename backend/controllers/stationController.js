@@ -1,24 +1,24 @@
-const Station = require('../models/Station');
+const { getAllStations } = require('../dataLoader');
 
 // @desc    Get all stations
 // @route   GET /api/stations
 // @access  Public
-const getAllStations = async (req, res) => {
+const getAllStationsHandler = async (req, res) => {
     try {
         // If query param 'search' is present, filter by name/code
         const { search } = req.query;
-        let query = {};
+        let stations = getAllStations();
 
         if (search) {
-            query = {
-                $or: [
-                    { code: { $regex: search, $options: 'i' } },
-                    { name: { $regex: search, $options: 'i' } }
-                ]
-            };
+            const lowerSearch = search.toLowerCase();
+            stations = stations.filter(s =>
+                s.code.toLowerCase().includes(lowerSearch) ||
+                s.name.toLowerCase().includes(lowerSearch)
+            );
         }
 
-        const stations = await Station.find(query).sort({ name: 1 });
+        // Sort by name
+        stations.sort((a, b) => a.name.localeCompare(b.name));
 
         res.json({
             success: true,
@@ -32,5 +32,5 @@ const getAllStations = async (req, res) => {
 };
 
 module.exports = {
-    getAllStations
+    getAllStations: getAllStationsHandler
 };

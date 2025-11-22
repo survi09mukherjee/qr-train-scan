@@ -128,35 +128,84 @@ const TrainDetails: React.FC = () => {
         </div>
 
         {/* Route Timeline */}
-        <div className="bg-gray-800 rounded-xl p-4">
-          <h3 className="font-bold mb-4 flex items-center gap-2">
-            <MapPin size={18} className="text-blue-400" />
-            Route Information
-          </h3>
-          <div className="space-y-6 relative pl-2">
-            <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-gray-700"></div>
+        <h3 className="font-bold mb-4 flex items-center gap-2">
+          <MapPin size={18} className="text-blue-400" />
+          Live Journey Route
+        </h3>
 
-            {train.route.map((station, index) => (
-              <div key={index} className="relative flex items-start gap-4">
-                <div className="w-6 h-6 rounded-full bg-gray-900 border-2 border-gray-600 z-10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-gray-600"></div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium text-white">{station.name}</p>
-                      <p className="text-xs text-gray-400">{station.code}</p>
+        <div className="overflow-x-auto pb-2">
+          <div className="flex items-start justify-between min-w-[300px] relative px-4">
+            {/* Connecting Line */}
+            <div className="absolute top-[20px] left-8 right-8 h-0.5 bg-gray-700"></div>
+
+            {(() => {
+              // Find current station index
+              const currentStationName = train.live_status?.current_station;
+              const currentIndex = train.route.findIndex(s => s.name === currentStationName);
+
+              // Determine stations to show
+              // If we can't find the current station, default to showing start of route or handle gracefully
+              // For now, let's assume we can find it or default to 0
+              const activeIndex = currentIndex !== -1 ? currentIndex : 0;
+
+              const prevStation = activeIndex > 0 ? train.route[activeIndex - 1] : null;
+              const currentStation = train.route[activeIndex];
+              const nextStation = activeIndex < train.route.length - 1 ? train.route[activeIndex + 1] : null;
+
+              return (
+                <>
+                  {/* Previous Station */}
+                  <div className="flex flex-col items-center gap-2 relative z-10 min-w-[80px]">
+                    <div className={`w-4 h-4 rounded-full border-2 ${prevStation ? 'bg-gray-800 border-gray-500' : 'bg-transparent border-transparent'}`}>
+                      {prevStation && <div className="w-2 h-2 rounded-full bg-gray-500 m-0.5"></div>}
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-mono text-blue-300">
-                        {index === 0 ? station.departureTime : station.arrivalTime}
+                    {prevStation ? (
+                      <div className="text-center">
+                        <p className="text-xs font-medium text-gray-400">{prevStation.name}</p>
+                        <p className="text-[10px] text-gray-500">Prev</p>
+                        <p className="text-[10px] text-gray-600">{prevStation.departureTime}</p>
+                      </div>
+                    ) : (
+                      <div className="text-center opacity-0">
+                        <p className="text-xs">Start</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Current Station */}
+                  <div className="flex flex-col items-center gap-2 relative z-10 min-w-[100px]">
+                    <div className="w-6 h-6 rounded-full bg-blue-500/20 border-2 border-blue-500 flex items-center justify-center animate-pulse">
+                      <Train size={14} className="text-blue-400" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-blue-400">{currentStation?.name || 'Unknown'}</p>
+                      <p className="text-[10px] text-blue-300 font-medium uppercase tracking-wider">Current Station</p>
+                      <p className="text-[10px] text-gray-400">
+                        {currentStation?.arrivalTime === 'Source' ? currentStation?.departureTime : currentStation?.arrivalTime}
                       </p>
-                      <p className="text-xs text-gray-500">{station.distance} km</p>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
+
+                  {/* Next Station */}
+                  <div className="flex flex-col items-center gap-2 relative z-10 min-w-[80px]">
+                    <div className={`w-4 h-4 rounded-full border-2 ${nextStation ? 'bg-gray-800 border-orange-500' : 'bg-transparent border-transparent'}`}>
+                      {nextStation && <div className="w-2 h-2 rounded-full bg-orange-500 m-0.5"></div>}
+                    </div>
+                    {nextStation ? (
+                      <div className="text-center">
+                        <p className="text-xs font-medium text-gray-400">{nextStation.name}</p>
+                        <p className="text-[10px] text-gray-500">Next</p>
+                        <p className="text-[10px] text-gray-600">{nextStation.arrivalTime}</p>
+                      </div>
+                    ) : (
+                      <div className="text-center opacity-0">
+                        <p className="text-xs">End</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       </div>

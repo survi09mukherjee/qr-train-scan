@@ -1,4 +1,4 @@
-const Train = require('../models/Train');
+const { getTrainByNumber } = require('../dataLoader');
 
 // @desc    Process QR Scan
 // @route   POST /api/scan
@@ -22,7 +22,7 @@ const processScan = async (req, res) => {
         const trainNumber = trainNumberMatch[0];
         console.log(`Scanned Train Number: ${trainNumber}`);
 
-        const train = await Train.findOne({ trainNumber });
+        const train = getTrainByNumber(trainNumber);
 
         if (!train) {
             return res.status(404).json({
