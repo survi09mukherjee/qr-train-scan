@@ -14,6 +14,10 @@ import ScanHistory from "./pages/history/ScanHistory";
 import UserList from "./pages/admin/UserList";
 import Support from "./pages/Support";
 import TrainLivePage from "./pages/train/TrainLivePage";
+import Index from "./pages/Index";
+import PNRStatus from "./pages/PNRStatus";
+import StationControl from "./pages/StationControl";
+import TrainDetails from "./pages/TrainDetails";
 
 // Placeholder for protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -34,7 +38,7 @@ const AppRoutes = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* Protected Routes */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Index />} />
             <Route
                 path="/dashboard"
                 element={
@@ -116,6 +120,18 @@ const AppRoutes = () => {
                         <TrainLivePage />
                     </ProtectedRoute>
                 }
+            />
+            <Route
+                path="/pnr-status"
+                element={<PNRStatus />}
+            />
+            <Route
+                path="/station-control"
+                element={<StationControl />}
+            />
+            <Route
+                path="/train-details"
+                element={<TrainDetails />}
             />
 
             {/* Catch-all */}

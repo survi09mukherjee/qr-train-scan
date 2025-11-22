@@ -9,6 +9,9 @@ export interface TrainData {
     etaFinalDestination: string;
     speed: number;
     timestamp: string;
+    source: string;
+    destination: string;
+    finalStop: string;
 }
 
 export const fetchLiveTrainData = async (trainId: string): Promise<TrainData> => {
@@ -34,5 +37,8 @@ export const fetchLiveTrainData = async (trainId: string): Promise<TrainData> =>
         etaFinalDestination: "02:17:00",
         speed: 65 + Math.floor(Math.random() * 5), // Random speed between 65-70
         timestamp: now.toISOString(),
+        source: "Chennai Central",
+        destination: "Howrah Junction",
+        finalStop: "Howrah Junction",
     };
 };

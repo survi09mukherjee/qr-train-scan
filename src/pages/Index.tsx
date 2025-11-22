@@ -1,4 +1,4 @@
-import { Train, MapPin, Search, Zap } from "lucide-react";
+import { Train, MapPin, Search, Zap, QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,18 +21,19 @@ const Index = () => {
           </div>
         </header>
 
-        {/* PNR Status Card */}
+        {/* QR Scan Card */}
         <div className="mb-6">
-          <Card 
+          <Card
             className="p-6 hover:shadow-lg transition-shadow cursor-pointer bg-card"
-            onClick={() => navigate('/pnr-status')}
+            onClick={() => navigate('/scan')}
           >
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-accent rounded-2xl flex items-center justify-center">
-                <MapPin className="w-7 h-7 text-accent-foreground" />
+                <QrCode className="w-7 h-7 text-accent-foreground" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-card-foreground">PNR Status</h2>
+                <h2 className="text-xl font-semibold text-card-foreground">QR Scan</h2>
+                <p className="text-muted-foreground">Scan QR code to track train</p>
               </div>
             </div>
           </Card>
@@ -78,7 +79,7 @@ const Index = () => {
         {/* Additional Options */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Station Control Card */}
-          <Card 
+          <Card
             className="p-6 bg-card hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => navigate('/station-control')}
           >
@@ -97,17 +98,17 @@ const Index = () => {
           <Card className="p-6 bg-card">
             <div className="flex gap-4">
               <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
-                <svg 
-                  className="w-6 h-6 text-accent-foreground" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className="w-6 h-6 text-accent-foreground"
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
                   />
                 </svg>
               </div>
