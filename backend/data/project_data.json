@@ -1,0 +1,174 @@
+{
+    "stations": [
+        {
+            "station_name": "Chennai Central",
+            "code": "MAS",
+            "latitude": 13.083634,
+            "longitude": 80.27421,
+            "weather_condition": "Showers likely, high ~29-30 °C, humidity ~80%+"
+        },
+        {
+            "station_name": "Arakkonam Junction",
+            "code": "AJJ",
+            "latitude": 13.08234,
+            "longitude": 79.66853,
+            "weather_condition": "Overcast, ~24-26 °C currently, rain chance moderate"
+        },
+        {
+            "station_name": "Katpadi Junction",
+            "code": "KPD",
+            "latitude": 12.97224,
+            "longitude": 79.13643,
+            "weather_condition": "Cloudy with possible showers, humidity high (~80-90%)"
+        },
+        {
+            "station_name": "Salem Junction",
+            "code": "SA",
+            "latitude": 11.6703,
+            "longitude": 78.1133,
+            "weather_condition": "Warm (~30 °C), hazy, rain-chance moderate"
+        },
+        {
+            "station_name": "Erode Junction",
+            "code": "ED",
+            "latitude": 11.3428,
+            "longitude": 77.7274,
+            "weather_condition": "Mostly cloudy, scattered thunderstorms possible this afternoon"
+        },
+        {
+            "station_name": "Tiruppur",
+            "code": "TUP",
+            "latitude": 11.10822,
+            "longitude": 77.33987,
+            "weather_condition": "Showers early, thunderstorms likely later, high ~29-30 °C"
+        },
+        {
+            "station_name": "Coimbatore Junction",
+            "code": "CBE",
+            "latitude": 11.0168,
+            "longitude": 76.9558,
+            "weather_condition": "Afternoon scattered showers, warm (~28-30 °C), humidity elevated"
+        }
+    ],
+    "trains": [
+        {
+            "train_number": "06113",
+            "train_name": "Kollam Special Fare Sabarimala Special",
+            "departure_time": "6:10 am",
+            "arrival_time": "2:05 pm",
+            "duration": "7h 55m"
+        },
+        {
+            "train_number": "12675",
+            "train_name": "Kovai SF Express",
+            "departure_time": "7:15 am",
+            "arrival_time": "2:15 pm",
+            "duration": "7h"
+        },
+        {
+            "train_number": "12243",
+            "train_name": "Coimbatore Shatabdi Express",
+            "departure_time": "12:25 pm",
+            "arrival_time": "9:29 pm",
+            "duration": "9h 4m"
+        },
+        {
+            "train_number": "18189",
+            "train_name": "Ernakulam Jn. Express",
+            "departure_time": "1:25 pm",
+            "arrival_time": "9:27 pm",
+            "duration": "8h 2m"
+        },
+        {
+            "train_number": "22637",
+            "train_name": "West Coast SF Express",
+            "departure_time": "2:15 pm",
+            "arrival_time": "8:15 pm",
+            "duration": "6h"
+        },
+        {
+            "train_number": "20643",
+            "train_name": "Coimbatore Vande Bharat Express",
+            "departure_time": "2:35 pm",
+            "arrival_time": "10:20 pm",
+            "duration": "7h 45m"
+        },
+        {
+            "train_number": "12679",
+            "train_name": "Coimbatore InterCity SF Express",
+            "departure_time": "3:20 pm",
+            "arrival_time": "11:12 pm",
+            "duration": "7h 52m"
+        },
+        {
+            "train_number": "12695",
+            "train_name": "Thiruvananthapuram Central SF Express",
+            "departure_time": "4:20 pm",
+            "arrival_time": "11:44 pm",
+            "duration": "7h 24m"
+        },
+        {
+            "train_number": "12685",
+            "train_name": "Mangaluru Central SF Express",
+            "departure_time": "7:30 pm",
+            "arrival_time": "2:27 am +1 day",
+            "duration": "6h 57m"
+        },
+        {
+            "train_number": "12623",
+            "train_name": "Thiruvananthapuram Central Mail",
+            "departure_time": "8:10 pm",
+            "arrival_time": "3:34 am +1 day",
+            "duration": "7h 24m"
+        },
+        {
+            "train_number": "12601",
+            "train_name": "Mangaluru Central Mail",
+            "departure_time": "8:55 pm",
+            "arrival_time": "3:57 am +1 day",
+            "duration": "7h 2m"
+        },
+        {
+            "train_number": "22639",
+            "train_name": "Alappuzha SF Express",
+            "departure_time": "9:05 pm",
+            "arrival_time": "5:10 am +1 day",
+            "duration": "8h 5m"
+        },
+        {
+            "train_number": "12671",
+            "train_name": "Nilgiri SF Express",
+            "departure_time": "10:00 pm",
+            "arrival_time": "6:00 am +1 day",
+            "duration": "8h"
+        },
+        {
+            "train_number": "12674",
+            "train_name": "Cheran SF Express",
+            "departure_time": "10:45 pm",
+            "arrival_time": "10:02 am +1 day",
+            "duration": "11h 17m"
+        },
+        {
+            "train_number": "16159",
+            "train_name": "Mangaluru Central Express",
+            "departure_time": "11:10 pm",
+            "arrival_time": "6:47 am +1 day",
+            "duration": "7h 37m"
+        },
+        {
+            "train_number": "12511",
+            "train_name": "Thiruvananthapuram North Rapti Sagar SF Express",
+            "departure_time": "11:45 pm",
+            "arrival_time": "7:57 am +1 day",
+            "duration": "8h 12m"
+        },
+        {
+            "train_number": "13351",
+            "train_name": "Alappuzha Express",
+            "departure_time": "",
+            "arrival_time": "",
+            "duration": ""
+        }
+    ]
+}

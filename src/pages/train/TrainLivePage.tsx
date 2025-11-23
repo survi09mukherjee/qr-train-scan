@@ -13,6 +13,7 @@ import PreviousTrainCard from "@/components/train/PreviousTrainCard";
 import NextTrainCard from "@/components/train/NextTrainCard";
 import TimeCard from "@/components/train/TimeCard";
 import WeatherWidget from "@/components/common/WeatherWidget";
+import TrainJourneyTrack from "@/components/train/TrainJourneyTrack";
 
 const KOVAI_ROUTE = [
     { name: "CHENNAI CENTRAL", code: "MAS" },
@@ -144,63 +145,10 @@ const TrainLivePage = () => {
 
 
                             {/* Route Info - Horizontal Station Timeline (Source, Prev, Curr, Next, Dest) */}
-                            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden mt-3">
-                                <div className="bg-slate-100 dark:bg-slate-700 px-4 py-2 border-b border-slate-200 dark:border-slate-600">
-                                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Journey Route</h3>
-                                </div>
-                                <div className="p-4 overflow-x-auto">
-                                    <div className="flex items-start min-w-full relative w-full px-2 gap-4">
-                                        <div className="absolute top-[20px] left-4 right-4 h-0.5 bg-slate-300 dark:bg-slate-600 z-0"></div>
-
-                                        {(data.route && data.route.length > 0 ? data.route : (
-                                            data.trainNumber === "12675" ? KOVAI_ROUTE : [
-                                                { name: data.source, isSource: true },
-                                                { name: data.previousStation.name, label: "Prev" },
-                                                { name: data.currentLocation.name, isCurrent: true },
-                                                { name: data.upcomingStation.name, label: "Next" },
-                                                { name: data.destination, isDest: true }
-                                            ].filter(s => s.name && s.name !== "Unknown"))).map((station: any, index: number, arr: any[]) => {
-                                                const isSource = index === 0;
-                                                const isDest = index === arr.length - 1;
-                                                const isCurrent = station.name === data.currentLocation.name || station.isCurrent;
-
-                                                // Determine passed status
-                                                let isPassed = false;
-                                                if (data.route && data.route.length > 0) {
-                                                    const currentIndex = data.route.findIndex(s => s.name === data.currentLocation.name);
-                                                    isPassed = currentIndex !== -1 && index < currentIndex;
-                                                } else {
-                                                    // Fallback logic for summary view
-                                                    isPassed = index < arr.findIndex((s: any) => s.name === data.currentLocation.name || s.isCurrent);
-                                                }
-
-                                                return (
-                                                    <div key={index} className="flex flex-col items-center gap-1 relative z-10 min-w-[80px]">
-                                                        {isCurrent ? (
-                                                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg border-2 border-blue-500 px-2 py-1 flex flex-col items-center shadow-sm -mt-2 mb-1 bg-white">
-                                                                <div className="w-3 h-3 rounded-full bg-blue-600 ring-4 ring-blue-200 animate-pulse mb-1"></div>
-                                                                <div className="text-[10px] font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">Current</div>
-                                                            </div>
-                                                        ) : (
-                                                            <div className={`w-3 h-3 rounded-full ${isSource ? "bg-green-500 ring-2 ring-green-100" :
-                                                                isDest ? "bg-red-500 ring-2 ring-red-100" :
-                                                                    isPassed ? "bg-slate-400" : "bg-orange-500"
-                                                                } mb-6`}></div>
-                                                        )}
-
-                                                        <div className={`text-xs text-center whitespace-nowrap max-w-[100px] truncate ${isCurrent ? "font-bold text-blue-700" : "text-slate-600 dark:text-slate-400"}`}>
-                                                            {station.name}
-                                                        </div>
-
-                                                        <div className="text-[10px] text-slate-500">
-                                                            {isSource ? "Source" : isDest ? "Dest" : station.label || ""}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                    </div>
-                                </div>
-                            </div>
+                            <TrainJourneyTrack
+                                route={data.route && data.route.length > 0 ? data.route : KOVAI_ROUTE}
+                                currentStationName={data.currentLocation.name}
+                            />
                         </div>
 
                         {/* Right Side Cards */}

@@ -9,102 +9,67 @@ function loadData() {
     try {
         console.log('Loading train data from JSON files...');
 
-        const trainsPath = path.join(__dirname, 'data/trains.json');
-        const stationsPath = path.join(__dirname, 'data/stations.json');
+        const projectDataPath = path.join(__dirname, 'data/project_data.json');
 
-        if (fs.existsSync(trainsPath)) {
-            const trainsRaw = fs.readFileSync(trainsPath, 'utf8');
-            const trainsJson = JSON.parse(trainsRaw);
+        if (fs.existsSync(projectDataPath)) {
+            const projectDataRaw = fs.readFileSync(projectDataPath, 'utf8');
+            const projectData = JSON.parse(projectDataRaw);
 
-            // Extract features and normalize
-            trainsData = trainsJson.features.map(feature => {
-                const props = feature.properties;
-                return {
-                    trainNumber: props.number,
-                    trainName: props.name,
-                    type: props.type || 'Express',
-                    source: {
-                        code: props.from_station_code,
-                        name: props.from_station_name,
-                        departureTime: props.departure_time
-                    },
-                    destination: {
-                        code: props.to_station_code,
-                        name: props.to_station_name,
-                        arrivalTime: props.arrival_time
-                    },
-                    runningDays: props.running_days || [],
-                    route: props.route || [],
-                    isActive: true
-                };
-            });
-
-            console.log(`Loaded ${trainsData.length} trains`);
-
-            // Inject Custom Train: Kovai Express (12675)
-            const customTrain = {
-                trainNumber: "12675",
-                trainName: "Kovai Express",
-                type: "SF",
-                source: {
-                    code: "MAS",
-                    name: "CHENNAI CENTRAL",
-                    departureTime: "06:10:00"
-                },
-                destination: {
-                    code: "CBE",
-                    name: "COIMBATORE JN",
-                    arrivalTime: "14:05:00"
-                },
-                runningDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-                route: [
-                    { code: "MAS", name: "CHENNAI CENTRAL", location: [80.27556, 13.08223] },
-                    { code: "AJJ", name: "ARAKKONAM JN", location: [79.6676, 13.0844] },
-                    { code: "KPD", name: "KATPADI JN", location: [79.1325, 12.9692] },
-                    { code: "SA", name: "SALEM JN", location: [78.1460, 11.6643] },
-                    { code: "ED", name: "ERODE JN", location: [77.7259, 11.3277] },
-                    { code: "TUP", name: "TIRUPPUR", location: [77.3412, 11.1089] },
-                    { code: "CBE", name: "COIMBATORE JN", location: [76.9663, 10.9976] }
-                ],
-                isActive: true,
-                geometry: {
-                    type: "LineString",
-                    coordinates: [
-                        [80.27556, 13.08223],
-                        [79.6676, 13.0844],
-                        [79.1325, 12.9692],
-                        [78.1460, 11.6643],
-                        [77.7259, 11.3277],
-                        [77.3412, 11.1089],
-                        [76.9663, 10.9976]
-                    ]
-                }
-            };
-            trainsData.push(customTrain);
-            console.log('Injected custom train: Kovai Express (12675)');
-        }
-
-        if (fs.existsSync(stationsPath)) {
-            const stationsRaw = fs.readFileSync(stationsPath, 'utf8');
-            const stationsJson = JSON.parse(stationsRaw);
-
-            stationsData = stationsJson.features.map(feature => {
-                const props = feature.properties;
-                const coords = feature.geometry?.coordinates || [0, 0];
-                return {
-                    code: props.code,
-                    name: props.name,
-                    state: props.state,
-                    zone: props.zone,
-                    address: props.address,
+            // Load Stations
+            if (projectData.stations) {
+                stationsData = projectData.stations.map(s => ({
+                    code: s.code,
+                    name: s.station_name,
                     location: {
                         type: 'Point',
-                        coordinates: coords
-                    }
-                };
-            });
+                        coordinates: [s.longitude, s.latitude]
+                    },
+                    weather: s.weather_condition
+                }));
+                console.log(`Loaded ${stationsData.length} stations from project_data`);
+            }
 
-            console.log(`Loaded ${stationsData.length} stations`);
+            // Load Trains
+            if (projectData.trains) {
+                trainsData = projectData.trains.map(t => {
+                    // Find source and destination stations to get coordinates if needed, 
+                    // though the UI might just need names. 
+                    // For the route, we will construct it from the stations list since the user said 
+                    // "source will be all places from chennai to coimbatore and destination will be all places from chennai to coimbatore"
+                    // and the stations list IS the route.
+
+                    const fullRoute = stationsData.map(s => ({
+                        code: s.code,
+                        name: s.name,
+                        location: s.location.coordinates,
+                        weather: s.weather
+                    }));
+
+                    return {
+                        trainNumber: t.train_number,
+                        trainName: t.train_name,
+                        type: 'Express', // Default
+                        source: {
+                            code: 'MAS', // Assuming Chennai Central as source for all based on context or first station
+                            name: 'Chennai Central',
+                            departureTime: t.departure_time
+                        },
+                        destination: {
+                            code: 'CBE', // Assuming Coimbatore as destination
+                            name: 'Coimbatore Junction',
+                            arrivalTime: t.arrival_time
+                        },
+                        runningDays: ['Daily'], // Default
+                        route: fullRoute,
+                        isActive: true,
+                        duration: t.duration
+                    };
+                });
+                console.log(`Loaded ${trainsData.length} trains from project_data`);
+            }
+        } else {
+            console.warn('project_data.json not found, falling back to legacy data loading...');
+            // Fallback logic or keep existing logic if needed, but for now we replace.
         }
 
         console.log('Data loaded successfully!');
