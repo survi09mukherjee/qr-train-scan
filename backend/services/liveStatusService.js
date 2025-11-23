@@ -23,7 +23,19 @@ const getLiveStatus = async (trainNumber) => {
         delay: `${delay} min`,
         status: status,
         last_updated: new Date().toISOString(),
-        message: "Real-time scraping pending implementation"
+        message: "Real-time scraping pending implementation",
+        previous_train: {
+            name: "Shatabdi Express",
+            number: "12007",
+            departure_time: "10:15 AM",
+            status: "Departed"
+        },
+        next_train: {
+            name: "Lalbagh Express",
+            number: "12607",
+            eta: "02:30 PM",
+            status: "On Time"
+        }
     };
 
     liveStatusCache.set(trainNumber, {

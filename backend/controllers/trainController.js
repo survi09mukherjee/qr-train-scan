@@ -54,7 +54,20 @@ const getTrain = async (req, res) => {
             success: true,
             data: {
                 ...train,
-                live_status: liveStatus
+                live_status: liveStatus,
+                // Map live status fields to top-level for frontend convenience
+                previousTrain: liveStatus.previous_train ? {
+                    name: liveStatus.previous_train.name,
+                    number: liveStatus.previous_train.number,
+                    departureTime: liveStatus.previous_train.departure_time,
+                    status: liveStatus.previous_train.status
+                } : null,
+                nextTrain: liveStatus.next_train ? {
+                    name: liveStatus.next_train.name,
+                    number: liveStatus.next_train.number,
+                    eta: liveStatus.next_train.eta,
+                    status: liveStatus.next_train.status
+                } : null
             }
         });
     } catch (error) {
