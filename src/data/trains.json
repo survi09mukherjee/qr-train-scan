@@ -1,0 +1,166 @@
+[
+    {
+        "trainNumber": "12675",
+        "pnrExample": "1234567890",
+        "trainName": "Kovai SF Express",
+        "source": "CBE",
+        "destination": "MAS",
+        "departureTime": "15:15",
+        "arrivalTime": "22:50",
+        "duration": "7h 35m",
+        "routeStations": [
+            "CBE",
+            "TUP",
+            "ED",
+            "SA",
+            "KPD",
+            "AJJ",
+            "MAS"
+        ],
+        "segmentDistancesKm": [
+            50,
+            50,
+            60,
+            135,
+            61,
+            69
+        ],
+        "currentStationIndex": 3
+    },
+    {
+        "trainNumber": "12243",
+        "pnrExample": "2345678901",
+        "trainName": "Coimbatore Shatabdi Express",
+        "source": "CBE",
+        "destination": "MAS",
+        "departureTime": "15:05",
+        "arrivalTime": "22:15",
+        "duration": "7h 10m",
+        "routeStations": [
+            "CBE",
+            "TUP",
+            "ED",
+            "SA",
+            "KPD",
+            "AJJ",
+            "MAS"
+        ],
+        "segmentDistancesKm": [
+            50,
+            50,
+            60,
+            135,
+            61,
+            69
+        ],
+        "currentStationIndex": 2
+    },
+    {
+        "trainNumber": "20643",
+        "pnrExample": "3456789012",
+        "trainName": "Coimbatore Vande Bharat Express",
+        "source": "CBE",
+        "destination": "MAS",
+        "departureTime": "06:00",
+        "arrivalTime": "11:50",
+        "duration": "5h 50m",
+        "routeStations": [
+            "CBE",
+            "TUP",
+            "ED",
+            "SA",
+            "MAS"
+        ],
+        "segmentDistancesKm": [
+            50,
+            50,
+            60,
+            330
+        ],
+        "currentStationIndex": 1
+    },
+    {
+        "trainNumber": "12679",
+        "pnrExample": "4567890123",
+        "trainName": "Coimbatore InterCity SF Express",
+        "source": "CBE",
+        "destination": "MAS",
+        "departureTime": "06:15",
+        "arrivalTime": "13:50",
+        "duration": "7h 35m",
+        "routeStations": [
+            "CBE",
+            "TUP",
+            "ED",
+            "SA",
+            "KPD",
+            "AJJ",
+            "MAS"
+        ],
+        "segmentDistancesKm": [
+            50,
+            50,
+            60,
+            135,
+            61,
+            69
+        ],
+        "currentStationIndex": 4
+    },
+    {
+        "trainNumber": "12674",
+        "pnrExample": "5678901234",
+        "trainName": "Cheran SF Express",
+        "source": "CBE",
+        "destination": "MAS",
+        "departureTime": "22:50",
+        "arrivalTime": "07:00",
+        "duration": "8h 10m",
+        "routeStations": [
+            "CBE",
+            "TUP",
+            "ED",
+            "SA",
+            "KPD",
+            "AJJ",
+            "MAS"
+        ],
+        "segmentDistancesKm": [
+            50,
+            50,
+            60,
+            135,
+            61,
+            69
+        ],
+        "currentStationIndex": 0
+    },
+    {
+        "trainNumber": "12671",
+        "pnrExample": "6789012345",
+        "trainName": "Nilgiri SF Express",
+        "source": "MAS",
+        "destination": "CBE",
+        "departureTime": "21:05",
+        "arrivalTime": "05:15",
+        "duration": "8h 10m",
+        "routeStations": [
+            "MAS",
+            "AJJ",
+            "KPD",
+            "SA",
+            "ED",
+            "TUP",
+            "CBE"
+        ],
+        "segmentDistancesKm": [
+            69,
+            61,
+            135,
+            60,
+            50,
+            50
+        ],
+        "currentStationIndex": 0
+    }
+]

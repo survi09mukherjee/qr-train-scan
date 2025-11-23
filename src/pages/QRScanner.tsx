@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
-import api from '../api/axios';
+import { decodeQR } from '../services/trainService';
 
 const QRScanner: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -37,25 +37,25 @@ const QRScanner: React.FC = () => {
     };
   }, []);
 
+
+
   const handleScan = async (qrData: string) => {
     if (qrData && !loading) {
       setLoading(true);
       setError('');
       try {
         console.log('Scanned:', qrData);
-        const response = await api.post('/qrs/decode', { qrString: qrData });
+        const response = await decodeQR(qrData);
 
-        if (response.data.success) {
-          const trainNumber = response.data.data.trainNumber;
+        if (response.success && response.data) {
+          const trainNumber = response.data.trainNumber;
           navigate(`/train/${trainNumber}/live`);
+        } else {
+          setError(response.error || 'Invalid QR Code');
         }
       } catch (err: any) {
         console.error('Scan Error:', err);
-        if (!err.response) {
-          setError('Server Unreachable. Please ensure the backend is running.');
-        } else {
-          setError(err.response?.data?.error || 'Failed to process QR code');
-        }
+        setError('Failed to process QR code');
         setLoading(false);
       }
     }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, ArrowLeft, Loader2, Train, MapPin, Clock, QrCode } from 'lucide-react';
-import api from '../api/axios';
+import { searchTrains, getTrainByNumber } from '../services/trainService';
 
 interface TrainResult {
     trainNumber: string;
@@ -39,10 +39,11 @@ const SearchTrain: React.FC = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await api.get(`/trains/searchByLocation?source=${encodeURIComponent(src)}&destination=${encodeURIComponent(dest)}`);
-            if (response.data.success) {
-                setTrains(response.data.data);
-                if (response.data.data.length === 0) {
+            // Use local service instead of API
+            const response = await searchTrains(src, dest);
+            if (response.success) {
+                setTrains(response.data);
+                if (response.data.length === 0) {
                     setError('No trains found for this route.');
                 }
             } else {
@@ -71,14 +72,15 @@ const SearchTrain: React.FC = () => {
         setError('');
 
         try {
-            const response = await api.get(`/trains/${trainNumber}`);
-            if (response.data.success) {
+            // Use local service instead of API
+            const response = await getTrainByNumber(trainNumber);
+            if (response.success) {
                 navigate(`/train/${trainNumber}/live`);
             } else {
                 setError('Train not found');
             }
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to find train');
+            setError(err.message || 'Failed to find train');
         } finally {
             setLoading(false);
         }
