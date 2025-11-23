@@ -10,14 +10,68 @@ function loadData() {
         console.log('Loading train data from JSON files...');
 
         const projectDataPath = path.join(__dirname, 'data/project_data.json');
+        const trainsDataPath = path.join(__dirname, 'data/trains.json');
+        const stationsDataPath = path.join(__dirname, 'data/stations.json');
 
+        // 1. Load Stations
+        if (fs.existsSync(stationsDataPath)) {
+            const stationsRaw = fs.readFileSync(stationsDataPath, 'utf8');
+            const stations = JSON.parse(stationsRaw);
+            // Map to our internal format
+            stationsData = stations.map(s => ({
+                code: s.code,
+                name: s.name,
+                location: {
+                    type: 'Point',
+                    coordinates: s.location && s.location.coordinates ? s.location.coordinates : [78.9629, 20.5937] // Default to India center if missing
+                },
+                weather: "Sunny" // Default weather
+            }));
+            console.log(`Loaded ${stationsData.length} stations from stations.json`);
+        }
+
+        // 2. Load Trains
+        if (fs.existsSync(trainsDataPath)) {
+            const trainsRaw = fs.readFileSync(trainsDataPath, 'utf8');
+            const trains = JSON.parse(trainsRaw);
+
+            trainsData = trains.map(t => {
+                // Construct route with location details from stationsData
+                const fullRoute = t.route ? t.route.map(stop => {
+                    const station = stationsData.find(s => s.code === stop.stationCode);
+                    return {
+                        code: stop.stationCode,
+                        name: stop.stationName || (station ? station.name : stop.stationCode),
+                        location: station ? station.location.coordinates : [78.9629, 20.5937],
+                        weather: station ? station.weather : "Sunny",
+                        arrivalTime: stop.arrivalTime,
+                        departureTime: stop.departureTime,
+                        distance: stop.distance
+                    };
+                }) : [];
+
+                return {
+                    trainNumber: t.trainNumber,
+                    trainName: t.trainName,
+                    type: t.type || 'Express',
+                    source: t.source,
+                    destination: t.destination,
+                    runningDays: t.runningDays || ['Daily'],
+                    route: fullRoute,
+                    isActive: true,
+                    duration: "N/A" // Calculate if needed
+                };
+            });
+            console.log(`Loaded ${trainsData.length} trains from trains.json`);
+        }
+
+        // 3. Override/Merge with Project Data (User provided specific data)
         if (fs.existsSync(projectDataPath)) {
             const projectDataRaw = fs.readFileSync(projectDataPath, 'utf8');
             const projectData = JSON.parse(projectDataRaw);
 
-            // Load Stations
             if (projectData.stations) {
-                stationsData = projectData.stations.map(s => ({
+                const projectStations = projectData.stations.map(s => ({
                     code: s.code,
                     name: s.station_name,
                     location: {
@@ -26,53 +80,70 @@ function loadData() {
                     },
                     weather: s.weather_condition
                 }));
-                console.log(`Loaded ${stationsData.length} stations from project_data`);
+
+                // Merge/Overwrite stations
+                projectStations.forEach(ps => {
+                    const index = stationsData.findIndex(s => s.code === ps.code);
+                    if (index !== -1) {
+                        stationsData[index] = ps;
+                    } else {
+                        stationsData.push(ps);
+                    }
+                });
+                console.log(`Merged ${projectStations.length} stations from project_data.json`);
             }
 
-            // Load Trains
             if (projectData.trains) {
-                trainsData = projectData.trains.map(t => {
-                    // Find source and destination stations to get coordinates if needed, 
-                    // though the UI might just need names. 
-                    // For the route, we will construct it from the stations list since the user said 
-                    // "source will be all places from chennai to coimbatore and destination will be all places from chennai to coimbatore"
-                    // and the stations list IS the route.
-
-                    const fullRoute = stationsData.map(s => ({
+                const projectTrains = projectData.trains.map(t => {
+                    const fullRoute = stationsData.filter(s =>
+                        // For this specific dataset, we assume the route includes all these stations
+                        // This logic might need refinement if the project data implies a specific subset
+                        // But based on previous context, the user provided a list of stations for the route.
+                        // Let's assume the project data stations ARE the route for these trains.
+                        projectData.stations.some(ps => ps.code === s.code)
+                    ).map(s => ({
                         code: s.code,
                         name: s.name,
                         location: s.location.coordinates,
-                        weather: s.weather
+                        weather: s.weather,
+                        // Add arrival/departure if available in project data, else mock or leave empty
                     }));
 
                     return {
                         trainNumber: t.train_number,
                         trainName: t.train_name,
-                        type: 'Express', // Default
+                        type: 'Express',
                         source: {
-                            code: 'MAS', // Assuming Chennai Central as source for all based on context or first station
+                            code: 'MAS',
                             name: 'Chennai Central',
                             departureTime: t.departure_time
                         },
                         destination: {
-                            code: 'CBE', // Assuming Coimbatore as destination
+                            code: 'CBE',
                             name: 'Coimbatore Junction',
                             arrivalTime: t.arrival_time
                         },
-                        runningDays: ['Daily'], // Default
+                        runningDays: ['Daily'],
                         route: fullRoute,
                         isActive: true,
                         duration: t.duration
                     };
                 });
-                console.log(`Loaded ${trainsData.length} trains from project_data`);
+
+                // Merge/Overwrite trains
+                projectTrains.forEach(pt => {
+                    const index = trainsData.findIndex(t => t.trainNumber === pt.trainNumber);
+                    if (index !== -1) {
+                        trainsData[index] = pt;
+                    } else {
+                        trainsData.push(pt);
+                    }
+                });
+                console.log(`Merged ${projectTrains.length} trains from project_data.json`);
             }
-        } else {
-            console.warn('project_data.json not found, falling back to legacy data loading...');
-            // Fallback logic or keep existing logic if needed, but for now we replace.
         }
 
-        console.log('Data loaded successfully!');
+        console.log(`Total Data Loaded: ${trainsData.length} Trains, ${stationsData.length} Stations`);
     } catch (error) {
         console.error('Error loading data:', error);
     }
