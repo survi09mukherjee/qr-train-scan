@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { useEffect } from "react";
@@ -20,6 +20,7 @@ interface TrainMapProps {
     lat: number;
     lng: number;
     trainName: string;
+    route?: { lat: number; lng: number; name: string }[];
 }
 
 // Component to auto-center map when coordinates change
@@ -31,12 +32,14 @@ const MapUpdater = ({ lat, lng }: { lat: number; lng: number }) => {
     return null;
 };
 
-const TrainMap = ({ lat, lng, trainName }: TrainMapProps) => {
+const TrainMap = ({ lat, lng, trainName, route = [] }: TrainMapProps) => {
+    const polylinePositions = route.map(s => [s.lat, s.lng] as [number, number]);
+
     return (
         <div className="h-[300px] w-full rounded-lg overflow-hidden border shadow-sm relative z-0">
             <MapContainer
                 center={[lat, lng]}
-                zoom={13}
+                zoom={10}
                 scrollWheelZoom={false}
                 style={{ height: "100%", width: "100%" }}
             >
@@ -44,7 +47,26 @@ const TrainMap = ({ lat, lng, trainName }: TrainMapProps) => {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <Marker position={[lat, lng]}>
+
+                {/* Route Polyline */}
+                {polylinePositions.length > 0 && (
+                    <Polyline
+                        positions={polylinePositions}
+                        pathOptions={{ color: 'blue', weight: 4 }}
+                    />
+                )}
+
+                {/* Station Markers */}
+                {route.map((station, idx) => (
+                    <Marker key={idx} position={[station.lat, station.lng]}>
+                        <Popup>
+                            <div className="font-semibold">{station.name}</div>
+                        </Popup>
+                    </Marker>
+                ))}
+
+                {/* Current Train Marker */}
+                <Marker position={[lat, lng]} zIndexOffset={1000}>
                     <Popup>
                         <div className="font-semibold">{trainName}</div>
                         <div className="text-xs">Current Location</div>

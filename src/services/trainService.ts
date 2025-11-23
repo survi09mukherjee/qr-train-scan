@@ -3,11 +3,13 @@ import api from '../api/axios';
 // Mock data for train details
 export interface Station {
     name: string;
+    code?: string;
     distance?: string;
     eta?: string;
     departureTime?: string;
     lat?: number;
     lng?: number;
+    weather?: string;
 }
 
 export interface Weather {
@@ -57,42 +59,77 @@ export interface TrainData {
 
 export const fetchLiveTrainData = async (trainId: string): Promise<TrainData> => {
     try {
-        const response = await api.get(`/trains/${trainId}/live`);
+        const response = await api.get(`/trains/${trainId}`);
 
         if (response.data.success) {
             const data = response.data.data;
+
+            // Derive current, previous, next from route and index
+            const currentIndex = data.currentStationIndex || 0;
+            const route = data.route || [];
+            const currentStationObj = route[currentIndex] || {};
+            const prevStationObj = route[currentIndex - 1] || null;
+            const nextStationObj = route[currentIndex + 1] || null;
+
+            // Helper to get coordinates
+            const getCoords = (station: any) => {
+                if (station && station.location && Array.isArray(station.location)) {
+                    return { lat: station.location[1], lng: station.location[0] };
+                }
+                return { lat: 11.0168, lng: 76.9558 }; // Default
+            };
+
+            const currentCoords = getCoords(currentStationObj);
+
             return {
                 trainName: data.trainName || "Unknown Train",
                 trainNumber: data.trainNumber || trainId,
-                pnr: data.pnr || "N/A",
-                lat: data.lat || 11.0168,
-                lng: data.lng || 76.9558,
-                nearestStation: data.nearestStation || "Unknown",
-                etaFinalDestination: data.etaFinalDestination || "Unknown",
-                speed: data.speed || 0,
-                timestamp: data.timestamp || new Date().toISOString(),
-                source: data.source || "Unknown",
-                destination: data.destination || "Unknown",
-                finalStop: data.finalStop || data.destination || "Unknown",
-                previousStation: data.previousStation || { name: "Unknown", departureTime: "N/A" },
-                upcomingStation: data.upcomingStation || { name: "Unknown", distance: "0 km", eta: "N/A" },
-                currentLocation: data.currentLocation || { name: "Unknown", lat: 11.0168, lng: 76.9558 },
-                weather: data.weather || { temp: 28, humidity: 60, windSpeed: 10, condition: "Sunny" },
-                timezone: data.timezone || "IST (UTC+05:30)",
-                nextMajorStops: data.nextMajorStops || [],
-                route: data.route || [],
-                previousTrain: data.previousTrain || {
-                    name: "Shatabdi Express",
-                    number: "12007",
-                    departureTime: "10:15 AM",
-                    status: "Departed"
+                pnr: data.pnrExample || "N/A",
+                lat: currentCoords.lat,
+                lng: currentCoords.lng,
+                nearestStation: currentStationObj.name || "Unknown",
+                etaFinalDestination: data.destination?.arrivalTime || "Unknown",
+                speed: 0, // Not in static data
+                timestamp: new Date().toISOString(),
+                source: data.source?.name || "Unknown",
+                destination: data.destination?.name || "Unknown",
+                finalStop: data.destination?.name || "Unknown",
+                previousStation: {
+                    name: prevStationObj?.name || "Start",
+                    departureTime: prevStationObj?.departureTime || "N/A",
+                    lat: getCoords(prevStationObj).lat,
+                    lng: getCoords(prevStationObj).lng
                 },
-                nextTrain: data.nextTrain || {
-                    name: "Lalbagh Express",
-                    number: "12607",
-                    eta: "02:30 PM",
-                    status: "On Time"
-                }
+                upcomingStation: {
+                    name: nextStationObj?.name || "End",
+                    distance: `${currentStationObj.distanceToNextKm || 0} km`,
+                    eta: nextStationObj?.arrivalTime || "N/A",
+                    lat: getCoords(nextStationObj).lat,
+                    lng: getCoords(nextStationObj).lng
+                },
+                currentLocation: {
+                    name: currentStationObj.name || "Unknown",
+                    lat: currentCoords.lat,
+                    lng: currentCoords.lng
+                },
+                weather: {
+                    temp: 28, // Placeholder or parse from string
+                    humidity: 60,
+                    windSpeed: 10,
+                    condition: (currentStationObj.weather as any) || "Sunny"
+                },
+                timezone: "IST (UTC+05:30)",
+                nextMajorStops: data.nextStations || [],
+                route: route.map((s: any) => ({
+                    name: s.name,
+                    code: s.code,
+                    lat: getCoords(s).lat,
+                    lng: getCoords(s).lng,
+                    distance: `${s.distanceToNextKm || 0} km`,
+                    weather: s.weather
+                })),
+                previousTrain: data.previousTrain || null,
+                nextTrain: data.nextTrain || null
             };
         }
 

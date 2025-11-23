@@ -80,19 +80,14 @@ const TrainJourneyTrack = ({
                                         {station.name}
                                     </div>
 
-                                    {/* Distance Label (if available) */}
-                                    {index < route.length - 1 && (
-                                        <div className="absolute left-1/2 top-1/2 -translate-y-1/2 translate-x-1/2 w-full text-center">
-                                            <span className="text-[10px] text-gray-400 bg-white dark:bg-slate-800 px-1">
-                                                {/* Calculate or show distance if we had it. 
-                                                    Since we don't have explicit distances between stations in the simple list,
-                                                    we can show a placeholder or nothing. 
-                                                    User asked for "distance between each station should also be written there".
-                                                    I'll add a mock distance or calculate if coords available.
-                                                    For now, let's assume ~50-100km or use the station.distance prop if I add it.
-                                                */}
-                                                ~60 km
-                                            </span>
+                                    {/* Distance Label (to next station) */}
+                                    {index < route.length - 1 && station.distance && (
+                                        <div className="absolute left-[100%] top-1/2 -translate-y-1/2 w-32 text-center pointer-events-none">
+                                            <div className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm inline-block">
+                                                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">
+                                                    {station.distance}
+                                                </span>
+                                            </div>
                                         </div>
                                     )}
 

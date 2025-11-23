@@ -43,7 +43,7 @@ const QRScanner: React.FC = () => {
       setError('');
       try {
         console.log('Scanned:', qrData);
-        const response = await api.post('/scan', { qrData });
+        const response = await api.post('/qrs/decode', { qrString: qrData });
 
         if (response.data.success) {
           const trainNumber = response.data.data.trainNumber;

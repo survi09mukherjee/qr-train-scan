@@ -11,147 +11,81 @@ function loadData() {
 
         const projectDataPath = path.join(__dirname, 'data/project_data.json');
         const trainsDataPath = path.join(__dirname, 'data/trains.json');
-        const stationsDataPath = path.join(__dirname, 'data/stations.json');
 
-        // 1. Load Stations
-        if (fs.existsSync(stationsDataPath)) {
-            const stationsRaw = fs.readFileSync(stationsDataPath, 'utf8');
-            const stations = JSON.parse(stationsRaw);
-            // Map to our internal format
-            stationsData = stations.map(s => ({
+        // 1. Load Stations (project_data.json is now the master for stations)
+        if (fs.existsSync(projectDataPath)) {
+            const stationsRaw = fs.readFileSync(projectDataPath, 'utf8');
+            const stationsJson = JSON.parse(stationsRaw);
+
+            // Handle both array and object wrapper formats
+            const stationsList = Array.isArray(stationsJson) ? stationsJson : (stationsJson.stations || []);
+
+            stationsData = stationsList.map(s => ({
                 code: s.code,
-                name: s.name,
+                name: s.name || s.station_name,
                 location: {
                     type: 'Point',
-                    coordinates: s.location && s.location.coordinates ? s.location.coordinates : [78.9629, 20.5937] // Default to India center if missing
+                    coordinates: [s.longitude, s.latitude]
                 },
-                weather: "Sunny" // Default weather
+                weather: s.weather_condition || "Sunny"
             }));
-            console.log(`Loaded ${stationsData.length} stations from stations.json`);
+            console.log(`Loaded ${stationsData.length} stations from project_data.json`);
         }
 
-        // 2. Load Trains
+        // 2. Load Trains (trains.json is now the master for trains)
         if (fs.existsSync(trainsDataPath)) {
             const trainsRaw = fs.readFileSync(trainsDataPath, 'utf8');
             const trainsJson = JSON.parse(trainsRaw);
-            const trainsList = trainsJson.trains || [];
+            const trainsList = Array.isArray(trainsJson) ? trainsJson : (trainsJson.trains || []);
 
             trainsData = trainsList.map(t => {
-                // Default Route (MAS -> CBE) for context
-                // In a real app, this would come from the DB or be dynamic
-                const defaultRouteCodes = ['MAS', 'AJJ', 'KPD', 'SA', 'ED', 'TUP', 'CBE'];
-                const fullRoute = defaultRouteCodes.map(code => {
+                // Map route station codes to full station objects
+                const fullRoute = t.routeStations.map((code, index) => {
                     const station = stationsData.find(s => s.code === code);
+                    const distance = t.segmentDistancesKm && t.segmentDistancesKm[index] !== undefined ? t.segmentDistancesKm[index] : 0;
+
                     return {
                         code: code,
                         name: station ? station.name : code,
                         location: station ? station.location.coordinates : [78.9629, 20.5937],
                         weather: station ? station.weather : "Sunny",
-                        arrivalTime: code === 'CBE' ? t.arrival_time : null,
-                        departureTime: code === 'MAS' ? t.departure_time : null,
-                        distance: "0 km" // Placeholder
+                        distanceToNextKm: distance
                     };
                 });
 
+                const currentStationIndex = t.currentStationIndex || 0;
+                const currentStation = fullRoute[currentStationIndex];
+                const previousStations = fullRoute.slice(0, currentStationIndex).map(s => s.code);
+                const nextStations = fullRoute.slice(currentStationIndex + 1).map(s => s.code);
+
                 return {
-                    trainNumber: t.train_number,
-                    trainName: t.train_name,
-                    type: t.type || 'Express',
+                    trainNumber: t.trainNumber,
+                    trainName: t.trainName,
+                    pnrExample: t.pnrExample,
                     source: {
-                        code: 'MAS',
-                        name: 'Chennai Central',
-                        departureTime: t.departure_time
+                        code: t.source,
+                        name: stationsData.find(s => s.code === t.source)?.name || t.source,
+                        departureTime: t.departureTime
                     },
                     destination: {
-                        code: 'CBE',
-                        name: 'Coimbatore Junction',
-                        arrivalTime: t.arrival_time
+                        code: t.destination,
+                        name: stationsData.find(s => s.code === t.destination)?.name || t.destination,
+                        arrivalTime: t.arrivalTime
                     },
-                    runningDays: t.runningDays || ['Daily'],
+                    duration: t.duration,
                     route: fullRoute,
-                    isActive: true,
-                    duration: t.duration
+                    currentStationIndex: currentStationIndex,
+                    currentStation: {
+                        code: currentStation.code,
+                        name: currentStation.name,
+                        weather: currentStation.weather
+                    },
+                    previousStations: previousStations,
+                    nextStations: nextStations,
+                    isActive: true
                 };
             });
             console.log(`Loaded ${trainsData.length} trains from trains.json`);
-        }
-
-        // 3. Override/Merge with Project Data (User provided specific data)
-        if (fs.existsSync(projectDataPath)) {
-            const projectDataRaw = fs.readFileSync(projectDataPath, 'utf8');
-            const projectData = JSON.parse(projectDataRaw);
-
-            if (projectData.stations) {
-                const projectStations = projectData.stations.map(s => ({
-                    code: s.code,
-                    name: s.station_name,
-                    location: {
-                        type: 'Point',
-                        coordinates: [s.longitude, s.latitude]
-                    },
-                    weather: s.weather_condition
-                }));
-
-                // Merge/Overwrite stations
-                projectStations.forEach(ps => {
-                    const index = stationsData.findIndex(s => s.code === ps.code);
-                    if (index !== -1) {
-                        stationsData[index] = ps;
-                    } else {
-                        stationsData.push(ps);
-                    }
-                });
-                console.log(`Merged ${projectStations.length} stations from project_data.json`);
-            }
-
-            if (projectData.trains) {
-                const projectTrains = projectData.trains.map(t => {
-                    const fullRoute = stationsData.filter(s =>
-                        // For this specific dataset, we assume the route includes all these stations
-                        // This logic might need refinement if the project data implies a specific subset
-                        // But based on previous context, the user provided a list of stations for the route.
-                        // Let's assume the project data stations ARE the route for these trains.
-                        projectData.stations.some(ps => ps.code === s.code)
-                    ).map(s => ({
-                        code: s.code,
-                        name: s.name,
-                        location: s.location.coordinates,
-                        weather: s.weather,
-                        // Add arrival/departure if available in project data, else mock or leave empty
-                    }));
-
-                    return {
-                        trainNumber: t.train_number,
-                        trainName: t.train_name,
-                        type: 'Express',
-                        source: {
-                            code: 'MAS',
-                            name: 'Chennai Central',
-                            departureTime: t.departure_time
-                        },
-                        destination: {
-                            code: 'CBE',
-                            name: 'Coimbatore Junction',
-                            arrivalTime: t.arrival_time
-                        },
-                        runningDays: ['Daily'],
-                        route: fullRoute,
-                        isActive: true,
-                        duration: t.duration
-                    };
-                });
-
-                // Merge/Overwrite trains
-                projectTrains.forEach(pt => {
-                    const index = trainsData.findIndex(t => t.trainNumber === pt.trainNumber);
-                    if (index !== -1) {
-                        trainsData[index] = pt;
-                    } else {
-                        trainsData.push(pt);
-                    }
-                });
-                console.log(`Merged ${projectTrains.length} trains from project_data.json`);
-            }
         }
 
         console.log(`Total Data Loaded: ${trainsData.length} Trains, ${stationsData.length} Stations`);
@@ -187,15 +121,11 @@ function searchTrains(query, source, destination) {
         const lowerDest = destination.toLowerCase();
 
         filteredTrains = filteredTrains.filter(t => {
-            // Check if source and destination match the train's route (name or code)
-            const sourceIndex = t.route.findIndex(s =>
-                s.name.toLowerCase().includes(lowerSource) ||
-                s.code.toLowerCase() === lowerSource
-            );
-            const destIndex = t.route.findIndex(s =>
-                s.name.toLowerCase().includes(lowerDest) ||
-                s.code.toLowerCase() === lowerDest
-            );
+            const routeCodes = t.route.map(s => s.code.toLowerCase());
+            const routeNames = t.route.map(s => s.name.toLowerCase());
+
+            const sourceIndex = routeCodes.indexOf(lowerSource) !== -1 ? routeCodes.indexOf(lowerSource) : routeNames.findIndex(n => n.includes(lowerSource));
+            const destIndex = routeCodes.indexOf(lowerDest) !== -1 ? routeCodes.indexOf(lowerDest) : routeNames.findIndex(n => n.includes(lowerDest));
 
             return sourceIndex !== -1 && destIndex !== -1 && sourceIndex < destIndex;
         });

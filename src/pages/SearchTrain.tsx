@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, ArrowLeft, Loader2, Train, MapPin, Clock } from 'lucide-react';
+import { Search, ArrowLeft, Loader2, Train, MapPin, Clock, QrCode } from 'lucide-react';
 import api from '../api/axios';
 
 interface TrainResult {
@@ -18,22 +18,28 @@ const SearchTrain: React.FC = () => {
     const sourceParam = searchParams.get('source');
     const destParam = searchParams.get('destination');
 
+    const [source, setSource] = useState(sourceParam || '');
+    const [destination, setDestination] = useState(destParam || '');
     const [trainNumber, setTrainNumber] = useState('');
+
     const [trains, setTrains] = useState<TrainResult[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // If URL params exist, trigger search automatically
     useEffect(() => {
         if (sourceParam && destParam) {
+            setSource(sourceParam);
+            setDestination(destParam);
             fetchTrainsByRoute(sourceParam, destParam);
         }
     }, [sourceParam, destParam]);
 
-    const fetchTrainsByRoute = async (source: string, destination: string) => {
+    const fetchTrainsByRoute = async (src: string, dest: string) => {
         setLoading(true);
         setError('');
         try {
-            const response = await api.get(`/trains/search?source=${encodeURIComponent(source)}&destination=${encodeURIComponent(destination)}`);
+            const response = await api.get(`/trains/searchByLocation?source=${encodeURIComponent(src)}&destination=${encodeURIComponent(dest)}`);
             if (response.data.success) {
                 setTrains(response.data.data);
                 if (response.data.data.length === 0) {
@@ -48,6 +54,13 @@ const SearchTrain: React.FC = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleLocationSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!source.trim() || !destination.trim()) return;
+        // Update URL to reflect search
+        navigate(`/?source=${encodeURIComponent(source)}&destination=${encodeURIComponent(destination)}`);
     };
 
     const handleSearchByNumber = async (e: React.FormEvent) => {
@@ -73,19 +86,115 @@ const SearchTrain: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-900 text-white p-4">
-            <button
-                onClick={() => navigate('/')}
-                className="mb-6 flex items-center text-gray-400 hover:text-white"
-            >
-                <ArrowLeft size={20} className="mr-2" /> Back to Home
-            </button>
+            <div className="max-w-6xl mx-auto">
+                <header className="mb-8 text-center">
+                    <h1 className="text-3xl font-bold text-blue-400 flex items-center justify-center gap-2">
+                        <Train className="w-8 h-8" />
+                        RailTrack
+                    </h1>
+                    <p className="text-gray-400 mt-2">Track your train live</p>
+                </header>
 
-            <div className="max-w-4xl mx-auto">
-                {sourceParam && destParam ? (
-                    // Results View
+                {/* Main Sections Grid */}
+                {!sourceParam && !destParam && (
+                    <div className="grid md:grid-cols-3 gap-6 mb-12">
+                        {/* Section 1: Search by Location */}
+                        <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-blue-500 transition-all">
+                            <div className="flex items-center gap-3 mb-4 text-blue-400">
+                                <MapPin className="w-6 h-6" />
+                                <h2 className="text-xl font-bold">Search by Route</h2>
+                            </div>
+                            <form onSubmit={handleLocationSearch} className="space-y-4">
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1">Source Station</label>
+                                    <input
+                                        type="text"
+                                        value={source}
+                                        onChange={(e) => setSource(e.target.value)}
+                                        placeholder="e.g. MAS, Chennai"
+                                        className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1">Destination Station</label>
+                                    <input
+                                        type="text"
+                                        value={destination}
+                                        onChange={(e) => setDestination(e.target.value)}
+                                        placeholder="e.g. CBE, Coimbatore"
+                                        className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors"
+                                >
+                                    Find Trains
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Section 2: Search by Train Number */}
+                        <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500 transition-all">
+                            <div className="flex items-center gap-3 mb-4 text-green-400">
+                                <Search className="w-6 h-6" />
+                                <h2 className="text-xl font-bold">Search by Number</h2>
+                            </div>
+                            <form onSubmit={handleSearchByNumber} className="space-y-4">
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1">Train Number</label>
+                                    <input
+                                        type="text"
+                                        value={trainNumber}
+                                        onChange={(e) => setTrainNumber(e.target.value)}
+                                        placeholder="e.g. 12675"
+                                        maxLength={5}
+                                        className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-green-500 outline-none"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors"
+                                >
+                                    Track Live
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Section 3: Scan QR */}
+                        <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-purple-500 transition-all flex flex-col">
+                            <div className="flex items-center gap-3 mb-4 text-purple-400">
+                                <QrCode className="w-6 h-6" />
+                                <h2 className="text-xl font-bold">Scan QR Code</h2>
+                            </div>
+                            <p className="text-gray-400 text-sm mb-6 flex-grow">
+                                Scan the QR code on the train to instantly get live status, route details, and more.
+                            </p>
+                            <button
+                                onClick={() => navigate('/scan')}
+                                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+                            >
+                                <QrCode className="w-5 h-5" />
+                                Start Scanning
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Results View (if params exist) */}
+                {(sourceParam || destParam) && (
                     <div>
-                        <h2 className="text-2xl font-bold mb-2">Trains from {sourceParam} to {destParam}</h2>
-                        <p className="text-gray-400 mb-6">{trains.length} trains found</p>
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-2xl font-bold">Trains from {sourceParam} to {destParam}</h2>
+                            <button
+                                onClick={() => navigate('/')}
+                                className="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                            >
+                                <ArrowLeft size={16} /> New Search
+                            </button>
+                        </div>
 
                         {loading ? (
                             <div className="flex justify-center py-12">
@@ -150,36 +259,6 @@ const SearchTrain: React.FC = () => {
                                 ))}
                             </div>
                         )}
-                    </div>
-                ) : (
-                    // Search by Number View (Fallback)
-                    <div className="max-w-md mx-auto mt-10">
-                        <h2 className="text-2xl font-bold mb-6 text-center">Search Train by Number</h2>
-                        <form onSubmit={handleSearchByNumber} className="space-y-4">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                                <input
-                                    type="text"
-                                    value={trainNumber}
-                                    onChange={(e) => setTrainNumber(e.target.value)}
-                                    placeholder="Enter 5-digit Train Number"
-                                    className="w-full bg-gray-800 border border-gray-700 rounded-lg py-3 pl-10 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    maxLength={5}
-                                />
-                            </div>
-                            {error && (
-                                <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm text-center">
-                                    {error}
-                                </div>
-                            )}
-                            <button
-                                type="submit"
-                                disabled={loading || trainNumber.length < 5}
-                                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center"
-                            >
-                                {loading ? <Loader2 className="animate-spin mr-2" /> : 'Search Train'}
-                            </button>
-                        </form>
                     </div>
                 )}
             </div>

@@ -5,7 +5,8 @@ const { getTrainByNumber } = require('../dataLoader');
 // @access  Public
 const processScan = async (req, res) => {
     try {
-        const { qrData } = req.body;
+        const { qrString } = req.body;
+        const qrData = qrString; // Map qrString to qrData for existing logic
 
         if (!qrData) {
             return res.status(400).json({ success: false, error: 'No QR data provided' });

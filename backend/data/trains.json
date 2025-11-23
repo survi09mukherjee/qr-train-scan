@@ -1,123 +1,166 @@
-{
-    "trains": [
-        {
-            "train_number": "06113",
-            "train_name": "Kollam Special Fare Sabarimala Special",
-            "departure_time": "6:10 am",
-            "arrival_time": "2:05 pm",
-            "duration": "7h 55m"
-        },
-        {
-            "train_number": "12675",
-            "train_name": "Kovai SF Express",
-            "departure_time": "7:15 am",
-            "arrival_time": "2:15 pm",
-            "duration": "7h"
-        },
-        {
-            "train_number": "12243",
-            "train_name": "Coimbatore Shatabdi Express",
-            "departure_time": "12:25 pm",
-            "arrival_time": "9:29 pm",
-            "duration": "9h 4m"
-        },
-        {
-            "train_number": "18189",
-            "train_name": "Ernakulam Jn. Express",
-            "departure_time": "1:25 pm",
-            "arrival_time": "9:27 pm",
-            "duration": "8h 2m"
-        },
-        {
-            "train_number": "22637",
-            "train_name": "West Coast SF Express",
-            "departure_time": "2:15 pm",
-            "arrival_time": "8:15 pm",
-            "duration": "6h"
-        },
-        {
-            "train_number": "20643",
-            "train_name": "Coimbatore Vande Bharat Express",
-            "departure_time": "2:35 pm",
-            "arrival_time": "10:20 pm",
-            "duration": "7h 45m"
-        },
-        {
-            "train_number": "12679",
-            "train_name": "Coimbatore InterCity SF Express",
-            "departure_time": "3:20 pm",
-            "arrival_time": "11:12 pm",
-            "duration": "7h 52m"
-        },
-        {
-            "train_number": "12695",
-            "train_name": "Thiruvananthapuram Central SF Express",
-            "departure_time": "4:20 pm",
-            "arrival_time": "11:44 pm",
-            "duration": "7h 24m"
-        },
-        {
-            "train_number": "12685",
-            "train_name": "Mangaluru Central SF Express",
-            "departure_time": "7:30 pm",
-            "arrival_time": "2:27 am +1 day",
-            "duration": "6h 57m"
-        },
-        {
-            "train_number": "12623",
-            "train_name": "Thiruvananthapuram Central Mail",
-            "departure_time": "8:10 pm",
-            "arrival_time": "3:34 am +1 day",
-            "duration": "7h 24m"
-        },
-        {
-            "train_number": "12601",
-            "train_name": "Mangaluru Central Mail",
-            "departure_time": "8:55 pm",
-            "arrival_time": "3:57 am +1 day",
-            "duration": "7h 2m"
-        },
-        {
-            "train_number": "22639",
-            "train_name": "Alappuzha SF Express",
-            "departure_time": "9:05 pm",
-            "arrival_time": "5:10 am +1 day",
-            "duration": "8h 5m"
-        },
-        {
-            "train_number": "12671",
-            "train_name": "Nilgiri SF Express",
-            "departure_time": "10:00 pm",
-            "arrival_time": "6:00 am +1 day",
-            "duration": "8h"
-        },
-        {
-            "train_number": "12674",
-            "train_name": "Cheran SF Express",
-            "departure_time": "10:45 pm",
-            "arrival_time": "10:02 am +1 day",
-            "duration": "11h 17m"
-        },
-        {
-            "train_number": "16159",
-            "train_name": "Mangaluru Central Express",
-            "departure_time": "11:10 pm",
-            "arrival_time": "6:47 am +1 day",
-            "duration": "7h 37m"
-        },
-        {
-            "train_number": "12511",
-            "train_name": "Thiruvananthapuram North Rapti Sagar SF Express",
-            "departure_time": "11:45 pm",
-            "arrival_time": "7:57 am +1 day",
-            "duration": "8h 12m"
-        },
-        {
-            "train_number": "13351",
-            "train_name": "Alappuzha Express",
-            "departure_time": "",
-            "arrival_time": "",
-            "duration": ""
-        }
-    ]
-}
+[
+    {
+        "trainNumber": "12675",
+        "pnrExample": "1234567890",
+        "trainName": "Kovai SF Express",
+        "source": "CBE",
+        "destination": "MAS",
+        "departureTime": "15:15",
+        "arrivalTime": "22:50",
+        "duration": "7h 35m",
+        "routeStations": [
+            "CBE",
+            "TUP",
+            "ED",
+            "SA",
+            "KPD",
+            "AJJ",
+            "MAS"
+        ],
+        "segmentDistancesKm": [
+            50,
+            50,
+            60,
+            135,
+            61,
+            69
+        ],
+        "currentStationIndex": 3
+    },
+    {
+        "trainNumber": "12243",
+        "pnrExample": "2345678901",
+        "trainName": "Coimbatore Shatabdi Express",
+        "source": "CBE",
+        "destination": "MAS",
+        "departureTime": "15:05",
+        "arrivalTime": "22:15",
+        "duration": "7h 10m",
+        "routeStations": [
+            "CBE",
+            "TUP",
+            "ED",
+            "SA",
+            "KPD",
+            "AJJ",
+            "MAS"
+        ],
+        "segmentDistancesKm": [
+            50,
+            50,
+            60,
+            135,
+            61,
+            69
+        ],
+        "currentStationIndex": 2
+    },
+    {
+        "trainNumber": "20643",
+        "pnrExample": "3456789012",
+        "trainName": "Coimbatore Vande Bharat Express",
+        "source": "CBE",
+        "destination": "MAS",
+        "departureTime": "06:00",
+        "arrivalTime": "11:50",
+        "duration": "5h 50m",
+        "routeStations": [
+            "CBE",
+            "TUP",
+            "ED",
+            "SA",
+            "MAS"
+        ],
+        "segmentDistancesKm": [
+            50,
+            50,
+            60,
+            330
+        ],
+        "currentStationIndex": 1
+    },
+    {
+        "trainNumber": "12679",
+        "pnrExample": "4567890123",
+        "trainName": "Coimbatore InterCity SF Express",
+        "source": "CBE",
+        "destination": "MAS",
+        "departureTime": "06:15",
+        "arrivalTime": "13:50",
+        "duration": "7h 35m",
+        "routeStations": [
+            "CBE",
+            "TUP",
+            "ED",
+            "SA",
+            "KPD",
+            "AJJ",
+            "MAS"
+        ],
+        "segmentDistancesKm": [
+            50,
+            50,
+            60,
+            135,
+            61,
+            69
+        ],
+        "currentStationIndex": 4
+    },
+    {
+        "trainNumber": "12674",
+        "pnrExample": "5678901234",
+        "trainName": "Cheran SF Express",
+        "source": "CBE",
+        "destination": "MAS",
+        "departureTime": "22:50",
+        "arrivalTime": "07:00",
+        "duration": "8h 10m",
+        "routeStations": [
+            "CBE",
+            "TUP",
+            "ED",
+            "SA",
+            "KPD",
+            "AJJ",
+            "MAS"
+        ],
+        "segmentDistancesKm": [
+            50,
+            50,
+            60,
+            135,
+            61,
+            69
+        ],
+        "currentStationIndex": 0
+    },
+    {
+        "trainNumber": "12671",
+        "pnrExample": "6789012345",
+        "trainName": "Nilgiri SF Express",
+        "source": "MAS",
+        "destination": "CBE",
+        "departureTime": "21:05",
+        "arrivalTime": "05:15",
+        "duration": "8h 10m",
+        "routeStations": [
+            "MAS",
+            "AJJ",
+            "KPD",
+            "SA",
+            "ED",
+            "TUP",
+            "CBE"
+        ],
+        "segmentDistancesKm": [
+            69,
+            61,
+            135,
+            60,
+            50,
+            50
+        ],
+        "currentStationIndex": 0
+    }
+]

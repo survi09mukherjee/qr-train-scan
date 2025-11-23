@@ -107,6 +107,7 @@ const TrainLivePage = () => {
                                     lat={data.lat}
                                     lng={data.lng}
                                     trainName={data.trainName}
+                                    route={data.route}
                                 />
                             </div>
 

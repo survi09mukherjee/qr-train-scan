@@ -23,7 +23,7 @@ app.use(express.json());
 // Routes
 app.use('/api/trains', trainRoutes);
 app.use('/api/stations', stationRoutes);
-app.use('/api/scan', scanRoutes);
+app.use('/api/qrs', scanRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
