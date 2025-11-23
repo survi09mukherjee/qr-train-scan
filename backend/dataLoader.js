@@ -33,33 +33,44 @@ function loadData() {
         // 2. Load Trains
         if (fs.existsSync(trainsDataPath)) {
             const trainsRaw = fs.readFileSync(trainsDataPath, 'utf8');
-            const trains = JSON.parse(trainsRaw);
+            const trainsJson = JSON.parse(trainsRaw);
+            const trainsList = trainsJson.trains || [];
 
-            trainsData = trains.map(t => {
-                // Construct route with location details from stationsData
-                const fullRoute = t.route ? t.route.map(stop => {
-                    const station = stationsData.find(s => s.code === stop.stationCode);
+            trainsData = trainsList.map(t => {
+                // Default Route (MAS -> CBE) for context
+                // In a real app, this would come from the DB or be dynamic
+                const defaultRouteCodes = ['MAS', 'AJJ', 'KPD', 'SA', 'ED', 'TUP', 'CBE'];
+                const fullRoute = defaultRouteCodes.map(code => {
+                    const station = stationsData.find(s => s.code === code);
                     return {
-                        code: stop.stationCode,
-                        name: stop.stationName || (station ? station.name : stop.stationCode),
+                        code: code,
+                        name: station ? station.name : code,
                         location: station ? station.location.coordinates : [78.9629, 20.5937],
                         weather: station ? station.weather : "Sunny",
-                        arrivalTime: stop.arrivalTime,
-                        departureTime: stop.departureTime,
-                        distance: stop.distance
+                        arrivalTime: code === 'CBE' ? t.arrival_time : null,
+                        departureTime: code === 'MAS' ? t.departure_time : null,
+                        distance: "0 km" // Placeholder
                     };
-                }) : [];
+                });
 
                 return {
-                    trainNumber: t.trainNumber,
-                    trainName: t.trainName,
+                    trainNumber: t.train_number,
+                    trainName: t.train_name,
                     type: t.type || 'Express',
-                    source: t.source,
-                    destination: t.destination,
+                    source: {
+                        code: 'MAS',
+                        name: 'Chennai Central',
+                        departureTime: t.departure_time
+                    },
+                    destination: {
+                        code: 'CBE',
+                        name: 'Coimbatore Junction',
+                        arrivalTime: t.arrival_time
+                    },
                     runningDays: t.runningDays || ['Daily'],
                     route: fullRoute,
                     isActive: true,
-                    duration: "N/A" // Calculate if needed
+                    duration: t.duration
                 };
             });
             console.log(`Loaded ${trainsData.length} trains from trains.json`);
@@ -176,13 +187,15 @@ function searchTrains(query, source, destination) {
         const lowerDest = destination.toLowerCase();
 
         filteredTrains = filteredTrains.filter(t => {
-            // Check if source and destination match the train's route
-            // For this specific dataset, we assume all trains go from Chennai to Coimbatore or vice versa
-            // But correctly, we should check if the train stops at 'source' AND 'destination'
-            // AND 'source' comes before 'destination' in the route.
-
-            const sourceIndex = t.route.findIndex(s => s.name.toLowerCase() === lowerSource);
-            const destIndex = t.route.findIndex(s => s.name.toLowerCase() === lowerDest);
+            // Check if source and destination match the train's route (name or code)
+            const sourceIndex = t.route.findIndex(s =>
+                s.name.toLowerCase().includes(lowerSource) ||
+                s.code.toLowerCase() === lowerSource
+            );
+            const destIndex = t.route.findIndex(s =>
+                s.name.toLowerCase().includes(lowerDest) ||
+                s.code.toLowerCase() === lowerDest
+            );
 
             return sourceIndex !== -1 && destIndex !== -1 && sourceIndex < destIndex;
         });
