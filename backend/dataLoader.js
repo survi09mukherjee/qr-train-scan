@@ -97,12 +97,35 @@ function getTrainByNumber(trainNumber) {
 }
 
 // Search trains
-function searchTrains(query) {
-    const lowerQuery = query.toLowerCase();
-    return trainsData.filter(t =>
-        t.trainNumber.toLowerCase().includes(lowerQuery) ||
-        t.trainName.toLowerCase().includes(lowerQuery)
-    );
+function searchTrains(query, source, destination) {
+    let filteredTrains = trainsData;
+
+    if (source && destination) {
+        const lowerSource = source.toLowerCase();
+        const lowerDest = destination.toLowerCase();
+
+        filteredTrains = filteredTrains.filter(t => {
+            // Check if source and destination match the train's route
+            // For this specific dataset, we assume all trains go from Chennai to Coimbatore or vice versa
+            // But correctly, we should check if the train stops at 'source' AND 'destination'
+            // AND 'source' comes before 'destination' in the route.
+
+            const sourceIndex = t.route.findIndex(s => s.name.toLowerCase() === lowerSource);
+            const destIndex = t.route.findIndex(s => s.name.toLowerCase() === lowerDest);
+
+            return sourceIndex !== -1 && destIndex !== -1 && sourceIndex < destIndex;
+        });
+    }
+
+    if (query) {
+        const lowerQuery = query.toLowerCase();
+        filteredTrains = filteredTrains.filter(t =>
+            t.trainNumber.toLowerCase().includes(lowerQuery) ||
+            t.trainName.toLowerCase().includes(lowerQuery)
+        );
+    }
+
+    return filteredTrains;
 }
 
 // Get station by code

@@ -68,13 +68,13 @@ const getTrain = async (req, res) => {
 // @access  Public
 const searchTrainsHandler = async (req, res) => {
     try {
-        const { query } = req.query;
+        const { query, source, destination } = req.query;
 
-        if (!query) {
-            return res.status(400).json({ success: false, error: 'Please provide a search query' });
+        if (!query && (!source || !destination)) {
+            return res.status(400).json({ success: false, error: 'Please provide a search query or source/destination' });
         }
 
-        const trains = searchTrains(query);
+        const trains = searchTrains(query, source, destination);
 
         res.json({
             success: true,
